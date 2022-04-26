@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    {{ $route.params.detail }}
     <div class="row">
       <div class="col-3">
         <div class="col">
@@ -81,6 +82,7 @@
       </div>
     </div>
 
+    <!-- Komentar -->
     <div class="row my-5">
       <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon1"
@@ -129,17 +131,17 @@
         "
         :variables="{"_eq": "F52"}"
       /> -->
+      <!-- {{ komentar }} -->
       <ul class="list-group">
         <li
           class="list-group-item"
-          v-for="(komentar, index) in dataKomentar.data.komentar"
+          v-for="(comment, index) in ListKomentar"
           :key="index"
         >
-          <p>User : {{ komentar.userName }}</p>
-          <p>Komentar : {{ komentar.komentar }}</p>
+          <p>User : {{ comment.userName }}</p>
+          <p>Komentar : {{ comment.komentarUser }}</p>
         </li>
       </ul>
-      <!-- {{ GetKomentar() }} -->
     </div>
   </div>
 </template>
@@ -151,7 +153,7 @@ const ADD_COMMENT = gql(
   mutation AddComment($object: komentar_insert_input = {}) {
   insert_komentar_one(object: $object) {
     id
-    komentar
+    komentarUser
     phoneName
     userName
   }
@@ -161,10 +163,10 @@ const ADD_COMMENT = gql(
 );
 const GET_KOMENTAR = gql(
   `
-  query GetKomentar {
+ query GetKomentar {
   komentar {
     id
-    komentar
+    komentarUser
     phoneName
     userName
   }
@@ -176,7 +178,7 @@ export default {
     return {
       namaOrang: "",
       komentarOrang: "",
-      dataKomentar: [],
+      ListKomentar: [],
     };
   },
   computed: {
@@ -192,7 +194,7 @@ export default {
         mutation: ADD_COMMENT,
         variables: {
           object: {
-            komentar: this.komentarOrang,
+            komentarUser: this.komentarOrang,
             phoneName: this.dataDetail.phone_name,
             userName: this.namaOrang,
           },
@@ -202,16 +204,22 @@ export default {
       this.namaOrang = "";
       this.komentarOrang = "";
     },
-    async GetKomentar() {
-      this.dataKomentar = await this.$apollo.query({
+    async dataKomentar() {
+      let hasilQuery = await this.$apollo.query({
         query: GET_KOMENTAR,
       });
-      console.log("hasil query", this.dataKomentar.data.komentar);
+      this.ListKomentar = hasilQuery.data.komentar;
+
+      // console.log("Result : ", hasilQuery.data.komentar);
+      console.log("List Komentar : ", this.ListKomentar);
+      let hasilFilter = this.ListKomentar.filter((dataKomen) => {
+        return dataKomen.phoneName == this.dataDetail.phone_name;
+      });
+      this.ListKomentar = hasilFilter;
     },
   },
-
   mounted() {
-    this.GetKomentar();
+    this.dataKomentar();
   },
 };
 </script>

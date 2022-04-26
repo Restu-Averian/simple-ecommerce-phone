@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    <h2>{{ $route.params.list }}</h2>
     <div class="row row-cols-1 row-cols-md-3 g-4">
       <div class="col" v-for="(hp, index) in dataHp" :key="index">
         <div class="card h-100" @click="detail(index, hp.slug)">
