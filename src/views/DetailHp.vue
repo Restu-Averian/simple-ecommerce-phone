@@ -29,14 +29,14 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
-          <h1>
+          <!-- <h1>
             {{
               dataDetail.specifications[12].specs[1].val[0].replaceAll(
                 "About",
                 ""
               )
             }}
-          </h1>
+          </h1> -->
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -113,33 +113,26 @@
           Kirim komentar
         </button>
       </div>
-      <!-- <ApolloSubscribeToMore
-        :document="
-          (gql) =>
-            gql(
-              `
-          subscription MySubscription($_eq: String!) {
-          komentar(where: {phoneName: {_eq: $_eq}}) {
-            id
-            komentar
-            phoneName
-            userName
-          }
-        }
-      `
-            )
-        "
-        :variables="{"_eq": "F52"}"
-      /> -->
+
       <!-- {{ komentar }} -->
-      <ul class="list-group">
+      <ul class="list-group text-start">
         <li
           class="list-group-item"
           v-for="(comment, index) in ListKomentar"
           :key="index"
         >
-          <p>User : {{ comment.userName }}</p>
-          <p>Komentar : {{ comment.komentarUser }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="fw-bold">{{ comment.userName }}</h4>
+              <p>{{ comment.komentarUser }}</p>
+            </div>
+            <div>
+              <i class="fa-solid fa-thumbs-up" @click="AddLike(index)"></i>
+              {{ countLike }}
+              <i class="fa-solid fa-thumbs-down" @click="AddDislike"></i>
+              {{ comment.jumlahDislike }}
+            </div>
+          </div>
         </li>
       </ul>
     </div>
@@ -153,6 +146,8 @@ const ADD_COMMENT = gql(
   mutation AddComment($object: komentar_insert_input = {}) {
   insert_komentar_one(object: $object) {
     id
+    jumlahDislike
+    jumlahLike
     komentarUser
     phoneName
     userName
@@ -166,11 +161,25 @@ const GET_KOMENTAR = gql(
  query GetKomentar {
   komentar {
     id
+    jumlahLike
+    jumlahDislike
     komentarUser
     phoneName
     userName
   }
 }
+  `
+);
+const ADD_LIKE = gql(
+  `
+  mutation MyMutation($id: Int!) {
+  update_komentar_by_pk(pk_columns: {id: $id}) {
+    id
+    
+  }
+}
+
+
   `
 );
 export default {
@@ -179,6 +188,8 @@ export default {
       namaOrang: "",
       komentarOrang: "",
       ListKomentar: [],
+      pesanKalauKosong: "Belum ada review",
+      countLike: 0,
     };
   },
   computed: {
@@ -189,8 +200,10 @@ export default {
   },
 
   methods: {
-    AddComment() {
-      this.$apollo.mutate({
+    async AddComment() {
+      // Validasi untuk nama yg sama blum fix
+
+      let a = await this.$apollo.mutate({
         mutation: ADD_COMMENT,
         variables: {
           object: {
@@ -199,23 +212,46 @@ export default {
             userName: this.namaOrang,
           },
         },
-        refetchQueries: ["GetKomentar"],
       });
+      console.log("hasil mutate", a);
       this.namaOrang = "";
       this.komentarOrang = "";
     },
+
     async dataKomentar() {
       let hasilQuery = await this.$apollo.query({
         query: GET_KOMENTAR,
       });
       this.ListKomentar = hasilQuery.data.komentar;
 
-      // console.log("Result : ", hasilQuery.data.komentar);
       console.log("List Komentar : ", this.ListKomentar);
+
       let hasilFilter = this.ListKomentar.filter((dataKomen) => {
+        console.log(dataKomen);
+
         return dataKomen.phoneName == this.dataDetail.phone_name;
       });
       this.ListKomentar = hasilFilter;
+    },
+    onCommentAdded(previousResult, { subscriptionData }) {
+      const newResult = {
+        messagesComment: [...previousResult.todos],
+      };
+      newResult.messagesComment.push(subscriptionData.data.komentar);
+      console.log(subscriptionData);
+      return newResult;
+    },
+    async AddLike(index) {
+      let hasilMutation = await this.$apollo.mutate({
+        mutation: ADD_LIKE,
+        variables: {
+          id: index,
+        },
+      });
+      console.log("Hasil mutation Add like ", hasilMutation);
+    },
+    AddDislike() {
+      this.countDislike++;
     },
   },
   mounted() {
