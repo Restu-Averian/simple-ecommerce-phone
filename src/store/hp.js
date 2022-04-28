@@ -5,7 +5,9 @@ const state = ()=>({
     cart:[],
     slug:"",
     brands:[],
-    listHp:[]
+    listHp:[],
+    LikeOrNot:[],
+    DislikeOrNot:[],
 })
 
 const mutations={
@@ -18,9 +20,18 @@ const mutations={
     setDataCart(state,params){
         state.cart.push(params)
     },
-   
-    setSlug(state,params){
-        state.slug= params
+   setLike(state,param){
+    state.LikeOrNot.push(param)
+   },
+   setDislike(state,param){
+    state.DislikeOrNot.push(param)
+   },
+    
+    setListSlug(state,params){
+        state.slugListHp= params
+    },
+    setDetailSlug(state,params){
+        state.slugDetailHp= params
     },
     deleteCart(state,params){
         state.cart.splice(params,1)
@@ -39,8 +50,7 @@ const actions = {
             }
         )  
     },
-    fetchDataHp(store,slug){
-        store.commit("setSlug",slug)
+    fetchDataHp(store){
         console.log("Ini di dalam fetchDataHp")
         axios.get(`https://api-mobilespecs.azharimm.site/v2/brands/${store.state.slug}`)
         .then(
@@ -54,10 +64,14 @@ const actions = {
             }
         )
     },
-  
-   fetchDetailHp(store,slug){
-        store.commit("setSlug",slug)
-        axios.get(`https://api-mobilespecs.azharimm.site/v2/${store.state.slug}`)
+  updateDataHp(store,params){
+    store.commit("setListSlug",params)
+    store.dispatch("fetchDataHp")
+  },
+   fetchDetailHp(store){
+    console.log("Ini di dalam fetchDetailHp")
+
+        axios.get(`https://api-mobilespecs.azharimm.site/v2/${store.state.slugDetailHp}`)
         .then(
             (response)=>{
                 console.log(response)
@@ -66,7 +80,10 @@ const actions = {
         )
 
    },
-   
+    updateDetailHp(store,params){
+        store.commit("setDetailSlug",params)
+        store.dispatch("fetchDetailHp")
+    },
     InputIntoCart(store,payload){
         store.commit("setDataCart",payload)
      },
