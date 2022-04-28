@@ -89,11 +89,7 @@ const actions = {
         store.dispatch("fetchDetailHp")
     },
 
-   updateDetailHp(store,params){
-    store.commit("setDetailSlug",params)
-    store.dispatch("fetchDetailHp")
-  },
-
+  
     InputIntoCart(store,payload){
         store.commit("setDataCart",payload)
      },
