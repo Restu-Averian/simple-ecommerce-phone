@@ -1,5 +1,6 @@
 <template>
   <div class="container">
+    {{ $route.params.detail }}
     <div class="row">
       <div class="col-3">
         <div class="col">
@@ -28,14 +29,14 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
-          <h1>
+          <!-- <h1>
             {{
               dataDetail.specifications[12].specs[1].val[0].replaceAll(
                 "About",
                 ""
               )
             }}
-          </h1>
+          </h1> -->
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -81,6 +82,7 @@
       </div>
     </div>
 
+    <!-- Komentar -->
     <div class="row my-5">
       <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon1"
@@ -111,35 +113,28 @@
           Kirim komentar
         </button>
       </div>
-      <!-- <ApolloSubscribeToMore
-        :document="
-          (gql) =>
-            gql(
-              `
-          subscription MySubscription($_eq: String!) {
-          komentar(where: {phoneName: {_eq: $_eq}}) {
-            id
-            komentar
-            phoneName
-            userName
-          }
-        }
-      `
-            )
-        "
-        :variables="{"_eq": "F52"}"
-      /> -->
-      <ul class="list-group">
+
+      <!-- {{ komentar }} -->
+      <ul class="list-group text-start">
         <li
           class="list-group-item"
-          v-for="(komentar, index) in dataKomentar.data.komentar"
+          v-for="(comment, index) in ListKomentar"
           :key="index"
         >
-          <p>User : {{ komentar.userName }}</p>
-          <p>Komentar : {{ komentar.komentar }}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h4 class="fw-bold">{{ comment.userName }}</h4>
+              <p>{{ comment.komentarUser }}</p>
+            </div>
+            <div>
+              <i class="fa-solid fa-thumbs-up" @click="AddLike(index)"></i>
+              {{ countLike }}
+              <i class="fa-solid fa-thumbs-down" @click="AddDislike"></i>
+              {{ comment.jumlahDislike }}
+            </div>
+          </div>
         </li>
       </ul>
-      <!-- {{ GetKomentar() }} -->
     </div>
   </div>
 </template>
@@ -151,7 +146,9 @@ const ADD_COMMENT = gql(
   mutation AddComment($object: komentar_insert_input = {}) {
   insert_komentar_one(object: $object) {
     id
-    komentar
+    jumlahDislike
+    jumlahLike
+    komentarUser
     phoneName
     userName
   }
@@ -161,14 +158,28 @@ const ADD_COMMENT = gql(
 );
 const GET_KOMENTAR = gql(
   `
-  query GetKomentar {
+ query GetKomentar {
   komentar {
     id
-    komentar
+    jumlahLike
+    jumlahDislike
+    komentarUser
     phoneName
     userName
   }
 }
+  `
+);
+const ADD_LIKE = gql(
+  `
+  mutation MyMutation($id: Int!) {
+  update_komentar_by_pk(pk_columns: {id: $id}) {
+    id
+    
+  }
+}
+
+
   `
 );
 export default {
@@ -176,7 +187,9 @@ export default {
     return {
       namaOrang: "",
       komentarOrang: "",
-      dataKomentar: [],
+      ListKomentar: [],
+      pesanKalauKosong: "Belum ada review",
+      countLike: 0,
     };
   },
   computed: {
@@ -187,31 +200,62 @@ export default {
   },
 
   methods: {
-    AddComment() {
-      this.$apollo.mutate({
+    async AddComment() {
+      // Validasi untuk nama yg sama blum fix
+
+      let a = await this.$apollo.mutate({
         mutation: ADD_COMMENT,
         variables: {
           object: {
-            komentar: this.komentarOrang,
+            komentarUser: this.komentarOrang,
             phoneName: this.dataDetail.phone_name,
             userName: this.namaOrang,
           },
         },
-        refetchQueries: ["GetKomentar"],
       });
+      console.log("hasil mutate", a);
       this.namaOrang = "";
       this.komentarOrang = "";
     },
-    async GetKomentar() {
-      this.dataKomentar = await this.$apollo.query({
+
+    async dataKomentar() {
+      let hasilQuery = await this.$apollo.query({
         query: GET_KOMENTAR,
       });
-      console.log("hasil query", this.dataKomentar.data.komentar);
+      this.ListKomentar = hasilQuery.data.komentar;
+
+      console.log("List Komentar : ", this.ListKomentar);
+
+      let hasilFilter = this.ListKomentar.filter((dataKomen) => {
+        console.log(dataKomen);
+
+        return dataKomen.phoneName == this.dataDetail.phone_name;
+      });
+      this.ListKomentar = hasilFilter;
+    },
+    onCommentAdded(previousResult, { subscriptionData }) {
+      const newResult = {
+        messagesComment: [...previousResult.todos],
+      };
+      newResult.messagesComment.push(subscriptionData.data.komentar);
+      console.log(subscriptionData);
+      return newResult;
+    },
+    async AddLike(index) {
+      let hasilMutation = await this.$apollo.mutate({
+        mutation: ADD_LIKE,
+        variables: {
+          id: index,
+        },
+      });
+      console.log("Hasil mutation Add like ", hasilMutation);
+    },
+    AddDislike() {
+      this.countDislike++;
     },
   },
-
   mounted() {
-    this.GetKomentar();
+    this.dataKomentar();
   },
 };
 </script>
