@@ -183,15 +183,16 @@ const ADD_LIKE_DISLIKE = gql(
 const SubscriptionComment = gql(
   `
   subscription SubscriptionComment($_eq: String!) {
-    komentar(where: {phoneName: {_eq: $_eq}}) {
-      id
-      jumlahDislike
-      jumlahLike
-      komentarUser
-      phoneName
-      userName
-    }
+  komentar(order_by: {userName: asc}, where: {phoneName: {_eq: $_eq}}) {
+    id
+    jumlahDislike
+    jumlahLike
+    komentarUser
+    phoneName
+    userName
   }
+}
+
 
   `
 );
@@ -200,10 +201,9 @@ export default {
     return {
       namaOrang: "",
       komentarOrang: "",
-      komentar: "",
       pesanKalauKosong: "Belum ada review",
       LikeOrNot: false,
-      RouteParamDetail: this.$route.params.detail,
+      DislikeOrNot: false,
       AllComment: [],
     };
   },
@@ -211,6 +211,7 @@ export default {
     $subscribe: {
       AllComment: {
         query: SubscriptionComment,
+
         variables() {
           return {
             _eq: this.$route.params.detail,
@@ -281,8 +282,8 @@ export default {
       console.log(this.LikeOrNot);
     },
     async AddDislike(index) {
-      if (this.LikeOrNot === false) {
-        this.LikeOrNot = true;
+      if (this.DislikeOrNot === false) {
+        this.DislikeOrNot = true;
         let hasilMutation = await this.$apollo.mutate({
           mutation: ADD_LIKE_DISLIKE,
           variables: {
@@ -295,8 +296,8 @@ export default {
         document.getElementById("pointer-like").style.color = "blue";
 
         console.log("Hasil mutation Add like ", hasilMutation);
-      } else if (this.LikeOrNot === true) {
-        this.LikeOrNot = false;
+      } else if (this.DislikeOrNot === true) {
+        this.DislikeOrNot = false;
 
         let hasilMutation = await this.$apollo.mutate({
           mutation: ADD_LIKE_DISLIKE,
