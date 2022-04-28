@@ -39,8 +39,8 @@ export default {
     },
     async AddToCart(index) {
       this.$store.dispatch("InputIntoCart", {
-        image: this.dataHp[index].image,
-        phone_name: this.dataHp[index].phone_name,
+        image: this.dataHp.data.phones[index].image,
+        phone_name: this.dataHp.data.phones[index].phone_name,
       });
     },
     detail(index, slug) {
