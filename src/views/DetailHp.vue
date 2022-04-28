@@ -114,22 +114,29 @@
         </button>
       </div>
 
-      <!-- {{ komentar }} -->
       <ul class="list-group text-start">
         <li
           class="list-group-item"
-          v-for="(comment, index) in ListKomentar"
+          v-for="(comment, index) in AllComment"
           :key="index"
         >
           <div class="d-flex justify-content-between align-items-center">
             <div>
+              {{ comment.id }}
               <h4 class="fw-bold">{{ comment.userName }}</h4>
               <p>{{ comment.komentarUser }}</p>
             </div>
             <div>
-              <i class="fa-solid fa-thumbs-up" @click="AddLike(index)"></i>
-              {{ countLike }}
-              <i class="fa-solid fa-thumbs-down" @click="AddDislike"></i>
+              <i
+                class="fa-solid fa-thumbs-up pointer"
+                id="pointer-like"
+                @click="AddLike(comment.id)"
+              ></i>
+              {{ comment.jumlahLike }}
+              <i
+                class="fa-solid fa-thumbs-down pointer pointer-dislike"
+                @click="AddDislike"
+              ></i>
               {{ comment.jumlahDislike }}
             </div>
           </div>
@@ -156,29 +163,36 @@ const ADD_COMMENT = gql(
 
   `
 );
-const GET_KOMENTAR = gql(
-  `
- query GetKomentar {
-  komentar {
-    id
-    jumlahLike
-    jumlahDislike
-    komentarUser
-    phoneName
-    userName
-  }
-}
-  `
-);
+
 const ADD_LIKE = gql(
   `
-  mutation MyMutation($id: Int!) {
-  update_komentar_by_pk(pk_columns: {id: $id}) {
+  mutation AddLike($id: Int!, $jumlahLike: Int!) {
+  update_komentar_by_pk(pk_columns: {id: $id}, _inc: {jumlahLike: $jumlahLike}) {
+    phoneName
+    userName
+    jumlahDislike
+    jumlahLike
     id
-    
   }
 }
 
+
+
+  `
+);
+
+const SubscriptionComment = gql(
+  `
+  subscription SubscriptionComment($_eq: String!) {
+    komentar(where: {phoneName: {_eq: $_eq}}) {
+      id
+      jumlahDislike
+      jumlahLike
+      komentarUser
+      phoneName
+      userName
+    }
+  }
 
   `
 );
@@ -187,10 +201,27 @@ export default {
     return {
       namaOrang: "",
       komentarOrang: "",
-      ListKomentar: [],
+      komentar: "",
       pesanKalauKosong: "Belum ada review",
-      countLike: 0,
+      LikeOrNot: false,
+      RouteParamDetail: this.$route.params.detail,
+      AllComment: [],
     };
+  },
+  apollo: {
+    $subscribe: {
+      AllComment: {
+        query: SubscriptionComment,
+        variables() {
+          return {
+            _eq: this.$route.params.detail,
+          };
+        },
+        result({ data }) {
+          this.AllComment = data.komentar;
+        },
+      },
+    },
   },
   computed: {
     dataDetail() {
@@ -217,22 +248,39 @@ export default {
       this.namaOrang = "";
       this.komentarOrang = "";
     },
+    async AddLike(index) {
+      if (this.LikeOrNot === false) {
+        this.LikeOrNot = true;
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE,
+          variables: {
+            id: index,
+            jumlahLike: 1,
+          },
+        });
+        document.getElementById("pointer-like").style.color = "blue";
 
-    async dataKomentar() {
-      let hasilQuery = await this.$apollo.query({
-        query: GET_KOMENTAR,
-      });
-      this.ListKomentar = hasilQuery.data.komentar;
+        console.log("Hasil mutation Add like ", hasilMutation);
+      } else if (this.LikeOrNot === true) {
+        this.LikeOrNot = false;
 
-      console.log("List Komentar : ", this.ListKomentar);
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE,
+          variables: {
+            id: index,
+            jumlahLike: -1,
+          },
+        });
+        document.getElementById("pointer-like").style.color = "blue";
 
-      let hasilFilter = this.ListKomentar.filter((dataKomen) => {
-        console.log(dataKomen);
-
-        return dataKomen.phoneName == this.dataDetail.phone_name;
-      });
-      this.ListKomentar = hasilFilter;
+        console.log("Hasil mutation Add like ", hasilMutation);
+      }
+      console.log(this.LikeOrNot);
     },
+    AddDislike() {
+      this.countDislike++;
+    },
+
     onCommentAdded(previousResult, { subscriptionData }) {
       const newResult = {
         messagesComment: [...previousResult.todos],
@@ -241,24 +289,12 @@ export default {
       console.log(subscriptionData);
       return newResult;
     },
-    async AddLike(index) {
-      let hasilMutation = await this.$apollo.mutate({
-        mutation: ADD_LIKE,
-        variables: {
-          id: index,
-        },
-      });
-      console.log("Hasil mutation Add like ", hasilMutation);
-    },
-    AddDislike() {
-      this.countDislike++;
-    },
-  },
-  mounted() {
-    this.dataKomentar();
   },
 };
 </script>
 
-<style>
+<style scoped>
+.pointer {
+  cursor: pointer;
+}
 </style>
