@@ -248,6 +248,8 @@ export default {
       this.namaOrang = "";
       this.komentarOrang = "";
     },
+
+    //Process of Like
     async AddLike(index) {
       if (this.LikeOrNot === false) {
         this.LikeOrNot = true;
@@ -260,8 +262,14 @@ export default {
             },
           },
         });
-        document.getElementById("pointer-like").style.color = "blue";
 
+        //Save into LocalStorage
+        this.$store.commit("setLike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            like: this.LikeOrNot,
+          },
+        ]);
         console.log("Hasil mutation Add like ", hasilMutation);
       } else if (this.LikeOrNot === true) {
         this.LikeOrNot = false;
@@ -275,12 +283,19 @@ export default {
             },
           },
         });
-        document.getElementById("pointer-like").style.color = "blue";
+        this.$store.commit("setLike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            like: this.LikeOrNot,
+          },
+        ]);
 
         console.log("Hasil mutation Add like ", hasilMutation);
       }
       console.log(this.LikeOrNot);
     },
+
+    // Process of Dislike
     async AddDislike(index) {
       if (this.DislikeOrNot === false) {
         this.DislikeOrNot = true;
@@ -293,7 +308,14 @@ export default {
             },
           },
         });
-        document.getElementById("pointer-like").style.color = "blue";
+
+        //Save into LocalStorage
+        this.$store.commit("setDislike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            dislike: this.DislikeOrNot,
+          },
+        ]);
 
         console.log("Hasil mutation Add like ", hasilMutation);
       } else if (this.DislikeOrNot === true) {
@@ -308,7 +330,13 @@ export default {
             },
           },
         });
-        document.getElementById("pointer-like").style.color = "blue";
+        //Save into LocalStorage
+        this.$store.commit("setDislike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            dislikelike: this.DislikeOrNot,
+          },
+        ]);
 
         console.log("Hasil mutation Add like ", hasilMutation);
       }
