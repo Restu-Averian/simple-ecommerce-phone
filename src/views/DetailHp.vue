@@ -135,7 +135,7 @@
               {{ comment.jumlahLike }}
               <i
                 class="fa-solid fa-thumbs-down pointer pointer-dislike"
-                @click="AddDislike"
+                @click="AddDislike(comment.id)"
               ></i>
               {{ comment.jumlahDislike }}
             </div>
@@ -164,19 +164,18 @@ const ADD_COMMENT = gql(
   `
 );
 
-const ADD_LIKE = gql(
+const ADD_LIKE_DISLIKE = gql(
   `
-  mutation AddLike($id: Int!, $jumlahLike: Int!) {
-  update_komentar_by_pk(pk_columns: {id: $id}, _inc: {jumlahLike: $jumlahLike}) {
-    phoneName
-    userName
+  mutation MyMutation($id: Int!, $_inc: komentar_inc_input!) {
+  update_komentar_by_pk(pk_columns: {id: $id}, _inc: $_inc) {
+    id
     jumlahDislike
     jumlahLike
-    id
+    komentarUser
+    phoneName
+    userName
   }
 }
-
-
 
   `
 );
@@ -252,10 +251,12 @@ export default {
       if (this.LikeOrNot === false) {
         this.LikeOrNot = true;
         let hasilMutation = await this.$apollo.mutate({
-          mutation: ADD_LIKE,
+          mutation: ADD_LIKE_DISLIKE,
           variables: {
             id: index,
-            jumlahLike: 1,
+            _inc: {
+              jumlahLike: 1,
+            },
           },
         });
         document.getElementById("pointer-like").style.color = "blue";
@@ -265,10 +266,12 @@ export default {
         this.LikeOrNot = false;
 
         let hasilMutation = await this.$apollo.mutate({
-          mutation: ADD_LIKE,
+          mutation: ADD_LIKE_DISLIKE,
           variables: {
             id: index,
-            jumlahLike: -1,
+            _inc: {
+              jumlahLike: -1,
+            },
           },
         });
         document.getElementById("pointer-like").style.color = "blue";
@@ -277,17 +280,38 @@ export default {
       }
       console.log(this.LikeOrNot);
     },
-    AddDislike() {
-      this.countDislike++;
-    },
+    async AddDislike(index) {
+      if (this.LikeOrNot === false) {
+        this.LikeOrNot = true;
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE_DISLIKE,
+          variables: {
+            id: index,
+            _inc: {
+              jumlahDislike: 1,
+            },
+          },
+        });
+        document.getElementById("pointer-like").style.color = "blue";
 
-    onCommentAdded(previousResult, { subscriptionData }) {
-      const newResult = {
-        messagesComment: [...previousResult.todos],
-      };
-      newResult.messagesComment.push(subscriptionData.data.komentar);
-      console.log(subscriptionData);
-      return newResult;
+        console.log("Hasil mutation Add like ", hasilMutation);
+      } else if (this.LikeOrNot === true) {
+        this.LikeOrNot = false;
+
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE_DISLIKE,
+          variables: {
+            id: index,
+            _inc: {
+              jumlahDislike: -1,
+            },
+          },
+        });
+        document.getElementById("pointer-like").style.color = "blue";
+
+        console.log("Hasil mutation Add like ", hasilMutation);
+      }
+      console.log(this.LikeOrNot);
     },
   },
 };
