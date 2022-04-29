@@ -28,14 +28,6 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
-          <h1>
-            {{
-              dataDetail.specifications[12].specs[1].val[0].replaceAll(
-                "About",
-                ""
-              )
-            }}
-          </h1>
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -70,7 +62,6 @@
                   </td>
                 </tr>
               </td>
-              <!-- <td>{{ dataDetail.specifications[0].specs[0].key }}</td> -->
             </tr>
             <tr>
               <th>Released Date</th>
@@ -111,25 +102,8 @@
           Kirim komentar
         </button>
       </div>
-      <!-- <ApolloSubscribeToMore
-        :document="
-          (gql) =>
-            gql(
-              `
-          subscription MySubscription($_eq: String!) {
-          komentar(where: {phoneName: {_eq: $_eq}}) {
-            id
-            komentar
-            phoneName
-            userName
-          }
-        }
-      `
-            )
-        "
-        :variables="{"_eq": "F52"}"
-      /> -->
-      <ul class="list-group">
+      {{ dataKomentar }}
+      <!-- <ul class="list-group">
         <li
           class="list-group-item"
           v-for="(komentar, index) in dataKomentar.data.komentar"
@@ -138,14 +112,14 @@
           <p>User : {{ komentar.userName }}</p>
           <p>Komentar : {{ komentar.komentar }}</p>
         </li>
-      </ul>
-      <!-- {{ GetKomentar() }} -->
+      </ul> -->
     </div>
   </div>
 </template>
 
 <script>
 import gql from "graphql-tag";
+import axios from "axios";
 const ADD_COMMENT = gql(
   `
   mutation AddComment($object: komentar_insert_input = {}) {
@@ -177,16 +151,20 @@ export default {
       namaOrang: "",
       komentarOrang: "",
       dataKomentar: [],
+      dataDetail: [],
     };
-  },
-  computed: {
-    dataDetail() {
-      console.log(this.$store.state.dataHp.hp.data.data);
-      return this.$store.state.dataHp.hp.data.data;
-    },
   },
 
   methods: {
+    fetchDataDetail() {
+      axios
+        .get(
+          `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
+        )
+        .then((response) => {
+          this.dataDetail = response.data.data;
+        });
+    },
     AddComment() {
       this.$apollo.mutate({
         mutation: ADD_COMMENT,
@@ -197,7 +175,6 @@ export default {
             userName: this.namaOrang,
           },
         },
-        refetchQueries: ["GetKomentar"],
       });
       this.namaOrang = "";
       this.komentarOrang = "";
@@ -206,11 +183,12 @@ export default {
       this.dataKomentar = await this.$apollo.query({
         query: GET_KOMENTAR,
       });
-      console.log("hasil query", this.dataKomentar.data.komentar);
+      console.log("hasil query", this.dataKomentar);
     },
   },
 
   mounted() {
+    this.fetchDataDetail();
     this.GetKomentar();
   },
 };
