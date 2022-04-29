@@ -29,14 +29,6 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
-          <!-- <h1>
-            {{
-              dataDetail.specifications[12].specs[1].val[0].replaceAll(
-                "About",
-                ""
-              )
-            }}
-          </h1> -->
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -71,7 +63,6 @@
                   </td>
                 </tr>
               </td>
-              <!-- <td>{{ dataDetail.specifications[0].specs[0].key }}</td> -->
             </tr>
             <tr>
               <th>Released Date</th>
@@ -82,7 +73,6 @@
       </div>
     </div>
 
-    <!-- Komentar -->
     <div class="row my-5">
       <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon1"
