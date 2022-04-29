@@ -60,8 +60,12 @@ export default {
           _eq: this.username,
         },
       });
-      if (hasilQuery) {
-        alert("Username telah ada");
+
+      if (this.username === "" && this.password === "") {
+        alert("Kosong");
+      } else if (hasilQuery.data.users.length !== 0) {
+        console.warn("udh ada karena ", hasilQuery.data.users);
+        // alert("Udh ada");
       } else {
         this.$apollo.mutate({
           mutation: RegisterProcc,
@@ -72,10 +76,19 @@ export default {
             },
           },
         });
-
         alert("Berhasil Register");
+        this.$router.push("/login");
       }
     },
+  },
+  mounted() {
+    let users = localStorage.getItem("dataHp");
+    if (users.length > 0) {
+      //Kalau key dataHp isExist
+      this.$router.push("/");
+    } else {
+      this.$router.push("/register");
+    }
   },
 };
 </script>

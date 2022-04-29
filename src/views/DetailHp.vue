@@ -102,15 +102,14 @@
           Kirim komentar
         </button>
       </div>
-
       <ul class="list-group text-start">
         <li
           class="list-group-item"
-          v-for="(komentar, index) in dataKomentar.data.komentar"
+          v-for="(komentar, index) in AllComment"
           :key="index"
         >
           <p>User : {{ komentar.userName }}</p>
-          <p>Komentar : {{ komentar.komentar }}</p>
+          <p>Komentar : {{ komentar.komentarUser }}</p>
         </li>
       </ul>
     </div>
@@ -199,20 +198,26 @@ export default {
         });
     },
     async AddComment() {
-      // Validasi untuk nama yg sama blum fix
-      let a = await this.$apollo.mutate({
-        mutation: ADD_COMMENT,
-        variables: {
-          object: {
-            komentarUser: this.komentarOrang,
-            phoneName: this.$route.params.detail,
-            userName: this.namaOrang,
+      let users = localStorage.getItem("dataHp");
+
+      if (users) {
+        let a = await this.$apollo.mutate({
+          mutation: ADD_COMMENT,
+          variables: {
+            object: {
+              komentarUser: this.komentarOrang,
+              phoneName: this.$route.params.detail,
+              userName: this.namaOrang,
+            },
           },
-        },
-      });
-      console.log("hasil mutate", a);
-      this.namaOrang = "";
-      this.komentarOrang = "";
+        });
+        console.log("hasil mutate", a);
+        this.namaOrang = "";
+        this.komentarOrang = "";
+      } else {
+        alert("Login terlebih dahulu");
+        this.$router.push("/login");
+      }
     },
     //Process of Like
     async AddLike(index) {
