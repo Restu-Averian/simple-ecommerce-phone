@@ -1,6 +1,5 @@
 <template>
   <div class="container">
-    {{ $route.params.detail }}
     <div class="row">
       <div class="col-3">
         <div class="col">
@@ -73,7 +72,6 @@
       </div>
     </div>
 
-    <!-- Komentar -->
     <div class="row my-5">
       <div class="input-group mb-3">
         <span class="input-group-text" id="basic-addon1"
@@ -104,34 +102,22 @@
           Kirim komentar
         </button>
       </div>
+
       <ul class="list-group text-start">
+
         <li
           class="list-group-item"
-          v-for="(comment, index) in AllComment"
+          v-for="(komentar, index) in dataKomentar.data.komentar"
           :key="index"
         >
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              {{ comment.id }}
-              <h4 class="fw-bold">{{ comment.userName }}</h4>
-              <p>{{ comment.komentarUser }}</p>
-            </div>
-            <div>
-              <i
-                class="fa-solid fa-thumbs-up pointer"
-                id="pointer-like"
-                @click="AddLike(comment.id)"
-              ></i>
-              {{ comment.jumlahLike }}
-              <i
-                class="fa-solid fa-thumbs-down pointer pointer-dislike"
-                @click="AddDislike(comment.id)"
-              ></i>
-              {{ comment.jumlahDislike }}
-            </div>
-          </div>
+          <p>User : {{ komentar.userName }}</p>
+          <p>Komentar : {{ komentar.komentar }}</p>
         </li>
+
+
+
       </ul>
+
     </div>
   </div>
 </template>
@@ -144,9 +130,7 @@ const ADD_COMMENT = gql(
   mutation AddComment($object: komentar_insert_input = {}) {
   insert_komentar_one(object: $object) {
     id
-    jumlahDislike
-    jumlahLike
-    komentarUser
+    komentar
     phoneName
     userName
   }
@@ -154,37 +138,16 @@ const ADD_COMMENT = gql(
 
   `
 );
-
-const ADD_LIKE_DISLIKE = gql(
+const GET_KOMENTAR = gql(
   `
-  mutation MyMutation($id: Int!, $_inc: komentar_inc_input!) {
-  update_komentar_by_pk(pk_columns: {id: $id}, _inc: $_inc) {
+  query GetKomentar {
+  komentar {
     id
-    jumlahDislike
-    jumlahLike
-    komentarUser
+    komentar
     phoneName
     userName
   }
 }
-
-  `
-);
-
-const SubscriptionComment = gql(
-  `
-  subscription SubscriptionComment($_eq: String!) {
-  komentar(order_by: {userName: asc}, where: {phoneName: {_eq: $_eq}}) {
-    id
-    jumlahDislike
-    jumlahLike
-    komentarUser
-    phoneName
-    userName
-  }
-}
-
-
   `
 );
 export default {
@@ -203,7 +166,6 @@ export default {
     $subscribe: {
       AllComment: {
         query: SubscriptionComment,
-
         variables() {
           return {
             _eq: this.$route.params.detail,
@@ -227,7 +189,6 @@ export default {
     },
     async AddComment() {
       // Validasi untuk nama yg sama blum fix
-
       let a = await this.$apollo.mutate({
         mutation: ADD_COMMENT,
         variables: {
@@ -242,7 +203,6 @@ export default {
       this.namaOrang = "";
       this.komentarOrang = "";
     },
-
     //Process of Like
     async AddLike(index) {
       if (this.LikeOrNot === false) {
@@ -256,7 +216,6 @@ export default {
             },
           },
         });
-
         //Save into LocalStorage
         this.$store.commit("setLike", [
           {
@@ -267,7 +226,6 @@ export default {
         console.log("Hasil mutation Add like ", hasilMutation);
       } else if (this.LikeOrNot === true) {
         this.LikeOrNot = false;
-
         let hasilMutation = await this.$apollo.mutate({
           mutation: ADD_LIKE_DISLIKE,
           variables: {
@@ -283,12 +241,10 @@ export default {
             like: this.LikeOrNot,
           },
         ]);
-
         console.log("Hasil mutation Add like ", hasilMutation);
       }
       console.log(this.LikeOrNot);
     },
-
     // Process of Dislike
     async AddDislike(index) {
       if (this.DislikeOrNot === false) {
@@ -302,7 +258,6 @@ export default {
             },
           },
         });
-
         //Save into LocalStorage
         this.$store.commit("setDislike", [
           {
@@ -310,11 +265,9 @@ export default {
             dislike: this.DislikeOrNot,
           },
         ]);
-
         console.log("Hasil mutation Add like ", hasilMutation);
       } else if (this.DislikeOrNot === true) {
         this.DislikeOrNot = false;
-
         let hasilMutation = await this.$apollo.mutate({
           mutation: ADD_LIKE_DISLIKE,
           variables: {
@@ -331,7 +284,6 @@ export default {
             dislikelike: this.DislikeOrNot,
           },
         ]);
-
         console.log("Hasil mutation Add like ", hasilMutation);
       }
       console.log(this.LikeOrNot);
@@ -343,8 +295,5 @@ export default {
 };
 </script>
 
-<style scoped>
-.pointer {
-  cursor: pointer;
-}
+<style>
 </style>

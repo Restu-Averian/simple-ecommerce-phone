@@ -1,24 +1,13 @@
 <template>
   <div id="app">
     <nav>
-      <router-link to="/home">Home</router-link> |
-      <router-link to="/cart"
-        >Cart
-        <span class="badge rounded-pill bg-danger">{{ dataCart.length }} </span>
-      </router-link>
+      <router-link to="/">Home</router-link> |
+      <router-link to="/cart">Cart</router-link>
     </nav>
     <router-view />
   </div>
 </template>
-<script>
-export default {
-  computed: {
-    dataCart() {
-      return this.$store.state.dataHp.cart;
-    },
-  },
-};
-</script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;

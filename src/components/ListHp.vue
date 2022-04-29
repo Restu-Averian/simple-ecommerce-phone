@@ -1,8 +1,6 @@
 <template>
   <div class="container">
-
     <h1>{{ dataHp.title }}</h1>
-
     <div class="row row-cols-1 row-cols-md-3 g-4">
       <div class="col" v-for="(hp, index) in dataHp.phones" :key="index">
         <div class="card h-100" @click="detail(index)">
@@ -35,6 +33,7 @@ export default {
   },
   methods: {
     fetchDataHp() {
+      // this.$store.dispatch("fetchDataHp");
       axios
         .get(
           `https://api-mobilespecs.azharimm.site/v2/brands/${this.$route.params.list}`
@@ -42,8 +41,6 @@ export default {
         .then((response) => {
           this.dataHp = response.data.data;
         });
-     
-   
     },
     // async AddToCart(index) {
     //   this.$store.dispatch("InputIntoCart", {
