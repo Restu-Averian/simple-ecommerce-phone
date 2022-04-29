@@ -89,7 +89,7 @@ const actions = {
         store.dispatch("fetchDetailHp")
     },
 
-  
+
     InputIntoCart(store,payload){
         store.commit("setDataCart",payload)
      },
