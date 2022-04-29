@@ -1,6 +1,5 @@
 
 const state = ()=>({
-    
     LikeOrNot:[],
     DislikeOrNot:[],
 })
@@ -13,14 +12,9 @@ const mutations={
    setDislike(state,param){
     state.DislikeOrNot.push(param)
    },
-    deleteCart(state,params){
-        state.cart.splice(params,1)
-    },
-   
+  
 }
 const actions = {
-   
-   
 }
 
 export default {
