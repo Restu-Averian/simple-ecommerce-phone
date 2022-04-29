@@ -29,7 +29,6 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
-
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -105,13 +104,7 @@
           Kirim komentar
         </button>
       </div>
-
-      {{ dataKomentar }}
-      
-
-
       <ul class="list-group text-start">
-
         <li
           class="list-group-item"
           v-for="(comment, index) in AllComment"
@@ -138,11 +131,7 @@
             </div>
           </div>
         </li>
-
-   
-
       </ul>
-
     </div>
   </div>
 </template>
@@ -210,18 +199,6 @@ export default {
       AllComment: [],
     };
   },
-
-  methods: {
-    fetchDataDetail() {
-      axios
-        .get(
-          `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
-        )
-        .then((response) => {
-          this.dataDetail = response.data.data;
-        });
-    },
-   
   apollo: {
     $subscribe: {
       AllComment: {
@@ -238,19 +215,25 @@ export default {
       },
     },
   },
- 
-
-  
+  methods: {
+    fetchDataDetail() {
+      axios
+        .get(
+          `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
+        )
+        .then((response) => {
+          this.dataDetail = response.data.data;
+        });
+    },
     async AddComment() {
       // Validasi untuk nama yg sama blum fix
 
       let a = await this.$apollo.mutate({
-
         mutation: ADD_COMMENT,
         variables: {
           object: {
             komentarUser: this.komentarOrang,
-            phoneName: this.dataDetail.phone_name,
+            phoneName: this.$route.params.detail,
             userName: this.namaOrang,
           },
         },
@@ -259,8 +242,6 @@ export default {
       this.namaOrang = "";
       this.komentarOrang = "";
     },
-   
-   
 
     //Process of Like
     async AddLike(index) {
@@ -307,11 +288,6 @@ export default {
       }
       console.log(this.LikeOrNot);
     },
-
-
-  mounted() {
-    this.fetchDataDetail();
-    this.GetKomentar();
 
     // Process of Dislike
     async AddDislike(index) {
@@ -360,7 +336,9 @@ export default {
       }
       console.log(this.LikeOrNot);
     },
-
+  },
+  mounted() {
+    this.fetchDataDetail();
   },
 };
 </script>
