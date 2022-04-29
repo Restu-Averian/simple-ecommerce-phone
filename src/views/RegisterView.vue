@@ -12,6 +12,9 @@
       </div>
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
+    <p class="small-text">
+      Have an account ? <router-link to="/login">Login here!</router-link>
+    </p>
   </div>
 </template>
 
@@ -77,5 +80,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+a {
+  text-decoration: none;
+}
 </style>
