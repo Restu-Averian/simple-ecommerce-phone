@@ -3,7 +3,8 @@ import axios from "axios"
 const state = ()=>({
     hp:[],
     cart:[],
-    slug:"",
+    slugListHp:"",
+    slugDetailHp:"",
     brands:[],
     listHp:[],
     LikeOrNot:[],
@@ -20,12 +21,15 @@ const mutations={
     setDataCart(state,params){
         state.cart.push(params)
     },
+
    setLike(state,param){
     state.LikeOrNot.push(param)
    },
    setDislike(state,param){
     state.DislikeOrNot.push(param)
    },
+
+
     
     setListSlug(state,params){
         state.slugListHp= params
@@ -52,7 +56,7 @@ const actions = {
     },
     fetchDataHp(store){
         console.log("Ini di dalam fetchDataHp")
-        axios.get(`https://api-mobilespecs.azharimm.site/v2/brands/${store.state.slug}`)
+        axios.get(`https://api-mobilespecs.azharimm.site/v2/brands/${store.state.slugListHp}`)
         .then(
             (response)=>{
                 store.commit("setListHp",response)
@@ -70,7 +74,6 @@ const actions = {
   },
    fetchDetailHp(store){
     console.log("Ini di dalam fetchDetailHp")
-
         axios.get(`https://api-mobilespecs.azharimm.site/v2/${store.state.slugDetailHp}`)
         .then(
             (response)=>{
@@ -80,10 +83,17 @@ const actions = {
         )
 
    },
+
     updateDetailHp(store,params){
         store.commit("setDetailSlug",params)
         store.dispatch("fetchDetailHp")
     },
+
+   updateDetailHp(store,params){
+    store.commit("setDetailSlug",params)
+    store.dispatch("fetchDetailHp")
+  },
+
     InputIntoCart(store,payload){
         store.commit("setDataCart",payload)
      },

@@ -4,7 +4,7 @@
     <ul class="list-group">
       <li
         class="list-group-item custom-li"
-        v-for="(brands, index) in dataBrands"
+        v-for="(brands, index) in dataBrands.data"
         :key="index"
         @click="goToHp(index, brands.brand_slug)"
       >
@@ -18,7 +18,7 @@
 export default {
   computed: {
     dataBrands() {
-      return this.$store.state.dataHp.brands.data.data;
+      return this.$store.state.dataHp.brands.data;
     },
   },
   methods: {
@@ -28,8 +28,8 @@ export default {
     goToHp(index, slug) {
       console.log("Slug : ", slug);
       console.log("index : ", index);
-      this.$router.push(`/home/${this.dataBrands[index].brand_name}`);
-      this.$store.dispatch("fetchDataHp", slug);
+      this.$router.push(`/home/${this.dataBrands.data[index].brand_name}`);
+      this.$store.dispatch("updateDataHp", slug);
     },
   },
   mounted() {
