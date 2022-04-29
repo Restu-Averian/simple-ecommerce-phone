@@ -29,14 +29,7 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
-          <!-- <h1>
-            {{
-              dataDetail.specifications[12].specs[1].val[0].replaceAll(
-                "About",
-                ""
-              )
-            }}
-          </h1> -->
+
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -71,7 +64,6 @@
                   </td>
                 </tr>
               </td>
-              <!-- <td>{{ dataDetail.specifications[0].specs[0].key }}</td> -->
             </tr>
             <tr>
               <th>Released Date</th>
@@ -114,7 +106,12 @@
         </button>
       </div>
 
+      {{ dataKomentar }}
+      
+
+
       <ul class="list-group text-start">
+
         <li
           class="list-group-item"
           v-for="(comment, index) in AllComment"
@@ -141,13 +138,18 @@
             </div>
           </div>
         </li>
+
+   
+
       </ul>
+
     </div>
   </div>
 </template>
 
 <script>
 import gql from "graphql-tag";
+import axios from "axios";
 const ADD_COMMENT = gql(
   `
   mutation AddComment($object: komentar_insert_input = {}) {
@@ -201,12 +203,25 @@ export default {
     return {
       namaOrang: "",
       komentarOrang: "",
+      dataDetail: [],
       pesanKalauKosong: "Belum ada review",
       LikeOrNot: false,
       DislikeOrNot: false,
       AllComment: [],
     };
   },
+
+  methods: {
+    fetchDataDetail() {
+      axios
+        .get(
+          `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
+        )
+        .then((response) => {
+          this.dataDetail = response.data.data;
+        });
+    },
+   
   apollo: {
     $subscribe: {
       AllComment: {
@@ -223,18 +238,14 @@ export default {
       },
     },
   },
-  computed: {
-    dataDetail() {
-      console.log(this.$store.state.dataHp.hp.data.data);
-      return this.$store.state.dataHp.hp.data.data;
-    },
-  },
+ 
 
-  methods: {
+  
     async AddComment() {
       // Validasi untuk nama yg sama blum fix
 
       let a = await this.$apollo.mutate({
+
         mutation: ADD_COMMENT,
         variables: {
           object: {
@@ -248,6 +259,8 @@ export default {
       this.namaOrang = "";
       this.komentarOrang = "";
     },
+   
+   
 
     //Process of Like
     async AddLike(index) {
@@ -294,6 +307,11 @@ export default {
       }
       console.log(this.LikeOrNot);
     },
+
+
+  mounted() {
+    this.fetchDataDetail();
+    this.GetKomentar();
 
     // Process of Dislike
     async AddDislike(index) {
@@ -342,6 +360,7 @@ export default {
       }
       console.log(this.LikeOrNot);
     },
+
   },
 };
 </script>
