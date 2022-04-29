@@ -5,6 +5,7 @@ import CartView from '../views/CartView.vue'
 import DetailHp from '../views/DetailHp.vue'
 import ListHpView from '../views/ListHpView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import LoginView from '../views/LoginView.vue'
 
 Vue.use(VueRouter)
 
@@ -17,6 +18,11 @@ const routes = [
     path: '/register',
     name: 'register',
     component:RegisterView      
+  },
+  {
+    path: '/login',
+    name: 'login',
+    component:LoginView      
   },
   {
     path: '/home',
