@@ -75,6 +75,15 @@ export default {
       this.$store.dispatch("deleteCart", index);
     },
   },
+  mounted() {
+    let users = localStorage.getItem("dataHp");
+    if (users) {
+      this.$router.push("/cart");
+    } else {
+      alert("Belum login");
+      this.$router.push("/login");
+    }
+  },
 };
 </script>
 

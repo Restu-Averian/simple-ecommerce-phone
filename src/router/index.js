@@ -4,6 +4,8 @@ import HomeView from '../views/HomeView.vue'
 import CartView from '../views/CartView.vue'
 import DetailHp from '../views/DetailHp.vue'
 import ListHpView from '../views/ListHpView.vue'
+import LoginView from '../views/LoginView.vue'
+import RegisterView from '../views/RegisterView.vue'
 
 Vue.use(VueRouter)
 
@@ -18,6 +20,16 @@ const routes = [
     component:HomeView      
   },
   {
+    path: '/login',
+    name: 'login',
+    component:LoginView      
+  },
+  {
+    path: '/register',
+    name: 'register',
+    component:RegisterView      
+  },
+  {
     path: '/home/:list',
     name: 'list',
     component:ListHpView      
@@ -27,6 +39,7 @@ const routes = [
     name: 'detail',
     component:DetailHp      
   },
+  
   // {
   //   path: '/:list',
   //   name: 'list',

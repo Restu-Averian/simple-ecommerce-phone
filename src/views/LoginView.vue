@@ -13,7 +13,7 @@
       <button type="submit" class="btn btn-primary">Login</button>
     </form>
     <p class="small-text">
-      Haven't account before ?
+      Haven't an account before ?
       <router-link to="/register">Register here!</router-link>
     </p>
   </div>
@@ -56,16 +56,26 @@ export default {
       if (hasilQuery.data.users.length === 0) {
         alert("Data tidak ditemukan");
       } else {
-        this.$store.commit("setUserLogin", hasilQuery.data.users[0].userName);
+        // console.log("Hasil Query after Login : ", hasilQuery.data.users[0].id);
+        this.$store.commit("setUserLogin", {
+          id: hasilQuery.data.users[0].id,
+          username: hasilQuery.data.users[0].userName,
+        });
         alert("Berhasil Login");
         this.$router.push("/");
       }
       console.log("hasilLoginQuery: ", hasilQuery);
     },
   },
-  //   mounted(){
-  //       let users = localStorage.getItem("")
-  //   }
+  mounted() {
+    let users = localStorage.getItem("dataHp");
+    if (users.length > 0) {
+      //Kalau key dataHp isExist
+      this.$router.push("/");
+    } else {
+      this.$router.push("/login");
+    }
+  },
 };
 </script>
 

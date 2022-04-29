@@ -2,10 +2,13 @@
 const state = ()=>({
     LikeOrNot:[],
     DislikeOrNot:[],
+    UserLogin:""
 })
 
 const mutations={
-  
+    setUserLogin(state,params){
+        state.UserLogin =params
+    },
    setLike(state,param){
     state.LikeOrNot.push(param)
    },
