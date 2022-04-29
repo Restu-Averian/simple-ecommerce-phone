@@ -104,7 +104,6 @@
       </div>
 
       <ul class="list-group text-start">
-
         <li
           class="list-group-item"
           v-for="(komentar, index) in dataKomentar.data.komentar"
@@ -113,11 +112,7 @@
           <p>User : {{ komentar.userName }}</p>
           <p>Komentar : {{ komentar.komentar }}</p>
         </li>
-
-
-
       </ul>
-
     </div>
   </div>
 </template>
@@ -138,12 +133,28 @@ const ADD_COMMENT = gql(
 
   `
 );
-const GET_KOMENTAR = gql(
+const ADD_LIKE_DISLIKE = gql(
   `
-  query GetKomentar {
-  komentar {
+  mutation MyMutation($id: Int!, $_inc: komentar_inc_input!) {
+  update_komentar_by_pk(pk_columns: {id: $id}, _inc: $_inc) {
     id
-    komentar
+    jumlahDislike
+    jumlahLike
+    komentarUser
+    phoneName
+    userName
+  }
+}
+  `
+);
+const SubscriptionComment = gql(
+  `
+  subscription SubscriptionComment($_eq: String!) {
+  komentar(order_by: {userName: asc}, where: {phoneName: {_eq: $_eq}}) {
+    id
+    jumlahDislike
+    jumlahLike
+    komentarUser
     phoneName
     userName
   }
