@@ -102,8 +102,9 @@
           Kirim komentar
         </button>
       </div>
-      {{ dataKomentar }}
-      <!-- <ul class="list-group">
+
+      <ul class="list-group text-start">
+
         <li
           class="list-group-item"
           v-for="(komentar, index) in dataKomentar.data.komentar"
@@ -112,7 +113,11 @@
           <p>User : {{ komentar.userName }}</p>
           <p>Komentar : {{ komentar.komentar }}</p>
         </li>
-      </ul> -->
+
+
+
+      </ul>
+
     </div>
   </div>
 </template>
@@ -150,11 +155,28 @@ export default {
     return {
       namaOrang: "",
       komentarOrang: "",
-      dataKomentar: [],
       dataDetail: [],
+      pesanKalauKosong: "Belum ada review",
+      LikeOrNot: false,
+      DislikeOrNot: false,
+      AllComment: [],
     };
   },
-
+  apollo: {
+    $subscribe: {
+      AllComment: {
+        query: SubscriptionComment,
+        variables() {
+          return {
+            _eq: this.$route.params.detail,
+          };
+        },
+        result({ data }) {
+          this.AllComment = data.komentar;
+        },
+      },
+    },
+  },
   methods: {
     fetchDataDetail() {
       axios
@@ -165,31 +187,110 @@ export default {
           this.dataDetail = response.data.data;
         });
     },
-    AddComment() {
-      this.$apollo.mutate({
+    async AddComment() {
+      // Validasi untuk nama yg sama blum fix
+      let a = await this.$apollo.mutate({
         mutation: ADD_COMMENT,
         variables: {
           object: {
-            komentar: this.komentarOrang,
-            phoneName: this.dataDetail.phone_name,
+            komentarUser: this.komentarOrang,
+            phoneName: this.$route.params.detail,
             userName: this.namaOrang,
           },
         },
       });
+      console.log("hasil mutate", a);
       this.namaOrang = "";
       this.komentarOrang = "";
     },
-    async GetKomentar() {
-      this.dataKomentar = await this.$apollo.query({
-        query: GET_KOMENTAR,
-      });
-      console.log("hasil query", this.dataKomentar);
+    //Process of Like
+    async AddLike(index) {
+      if (this.LikeOrNot === false) {
+        this.LikeOrNot = true;
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE_DISLIKE,
+          variables: {
+            id: index,
+            _inc: {
+              jumlahLike: 1,
+            },
+          },
+        });
+        //Save into LocalStorage
+        this.$store.commit("setLike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            like: this.LikeOrNot,
+          },
+        ]);
+        console.log("Hasil mutation Add like ", hasilMutation);
+      } else if (this.LikeOrNot === true) {
+        this.LikeOrNot = false;
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE_DISLIKE,
+          variables: {
+            id: index,
+            _inc: {
+              jumlahLike: -1,
+            },
+          },
+        });
+        this.$store.commit("setLike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            like: this.LikeOrNot,
+          },
+        ]);
+        console.log("Hasil mutation Add like ", hasilMutation);
+      }
+      console.log(this.LikeOrNot);
+    },
+    // Process of Dislike
+    async AddDislike(index) {
+      if (this.DislikeOrNot === false) {
+        this.DislikeOrNot = true;
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE_DISLIKE,
+          variables: {
+            id: index,
+            _inc: {
+              jumlahDislike: 1,
+            },
+          },
+        });
+        //Save into LocalStorage
+        this.$store.commit("setDislike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            dislike: this.DislikeOrNot,
+          },
+        ]);
+        console.log("Hasil mutation Add like ", hasilMutation);
+      } else if (this.DislikeOrNot === true) {
+        this.DislikeOrNot = false;
+        let hasilMutation = await this.$apollo.mutate({
+          mutation: ADD_LIKE_DISLIKE,
+          variables: {
+            id: index,
+            _inc: {
+              jumlahDislike: -1,
+            },
+          },
+        });
+        //Save into LocalStorage
+        this.$store.commit("setDislike", [
+          {
+            id: hasilMutation.data.update_komentar_by_pk.id,
+            dislikelike: this.DislikeOrNot,
+          },
+        ]);
+        console.log("Hasil mutation Add like ", hasilMutation);
+      }
+      console.log(this.LikeOrNot);
     },
   },
-
   mounted() {
     this.fetchDataDetail();
-    this.GetKomentar();
   },
 };
 </script>
