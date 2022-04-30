@@ -63,10 +63,7 @@ export default {
 
       if (this.username === "" && this.password === "") {
         alert("Kosong");
-      } else if (hasilQuery.data.users.length !== 0) {
-        console.warn("udh ada karena ", hasilQuery.data.users);
-        // alert("Udh ada");
-      } else {
+      } else if (hasilQuery.data.users.length === 0) {
         this.$apollo.mutate({
           mutation: RegisterProcc,
           variables: {
@@ -78,6 +75,9 @@ export default {
         });
         alert("Berhasil Register");
         this.$router.push("/login");
+        // alert("Udh ada");
+      } else {
+        alert("Udah ada username");
       }
     },
   },
