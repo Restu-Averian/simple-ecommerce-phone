@@ -75,7 +75,6 @@ export default {
         });
         alert("Berhasil Register");
         this.$router.push("/login");
-        // alert("Udh ada");
       } else {
         alert("Udah ada username");
       }

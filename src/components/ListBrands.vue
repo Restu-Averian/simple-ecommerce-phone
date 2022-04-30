@@ -30,14 +30,11 @@ export default {
         .then((response) => {
           this.dataBrands = response.data.data;
         });
-      // this.$store.dispatch("fetchBrands");
     },
     goToHp(index, slug) {
       console.log("Slug : ", slug);
       console.log("index : ", index);
-      // console.log("dasda", this.dataBrands[index].brand_slug);
       this.$router.push(`/home/${this.dataBrands[index].brand_slug}`);
-      // this.$store.dispatch("updateDataHp", slug);
     },
   },
   mounted() {
