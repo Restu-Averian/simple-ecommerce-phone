@@ -44,8 +44,6 @@ export default {
       let keluar = confirm("Yakin dek ? ");
       if (keluar) {
         localStorage.removeItem("dataHp");
-      } else {
-        alert("Bacot luwh dek");
       }
     },
   },
