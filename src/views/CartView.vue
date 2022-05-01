@@ -1,8 +1,21 @@
 <template>
   <div class="container">
     <h1>Cart</h1>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-      <div class="col" v-for="(cart, index) in dataCart" :key="index">
+    <div class="row my-5" v-for="(cart, index) in dataCart" :key="cart.id">
+      <div class="col-3">
+        <img :src="cart.image" alt="" class="w-50" />
+      </div>
+
+      <div class="col-6 text-start phone-name" @click="detail(index)">
+        <h3>{{ cart.phone_name }}</h3>
+        <p>Kuantitas : {{ cart.quantity }}</p>
+      </div>
+      <div class="col-3">
+        <button class="btn btn-danger" @click="deleteCart(cart.id)">
+          Hapus
+        </button>
+      </div>
+      <!-- <div class="col" v-for="(cart, index) in dataCart" :key="index">
         <button class="btn btn-danger" @click="deleteCart(index)">Hapus</button>
         <div class="card h-100">
           <img
@@ -14,21 +27,83 @@
             <h5 class="card-title">{{ cart.phone_name }}</h5>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
 
 <script>
+import gql from "graphql-tag";
+
+const SubscriptionCart = gql(
+  `
+  subscription MySubscription($_eq: Int!) {
+  cart(where: {id_userName: {_eq: $_eq}}) {
+    id
+    id_userName
+    image
+    quantity
+    phone_slug
+    phone_name
+  }
+}
+
+
+  `
+);
+const DELETE_CART = gql(
+  `
+  mutation MyMutation($id: Int!) {
+  delete_cart_by_pk(id: $id) {
+    id_userName
+  }
+}
+
+  `
+);
+let users = JSON.parse(localStorage.getItem("dataHp"));
+
 export default {
-  computed: {
-    dataCart() {
-      return this.$store.state.dataHp.cart;
+  data() {
+    return {
+      dataCart: [],
+    };
+  },
+
+  apollo: {
+    $subscribe: {
+      dataCart: {
+        query: SubscriptionCart,
+        variables() {
+          return {
+            _eq: users.dataHp.UserLogin.id,
+          };
+        },
+        result({ data }) {
+          console.log(data.cart);
+          this.dataCart = data.cart;
+        },
+      },
     },
   },
   methods: {
+    detail(index) {
+      console.log(this.dataCart[index]);
+
+      this.$router.push(
+        `/home/${this.dataCart[index].phone_slug}/${this.dataCart[index].phone_slug}`
+      );
+    },
     deleteCart(index) {
-      this.$store.dispatch("deleteCart", index);
+      let a = confirm("Yakin untuk hapus ?");
+      if (a) {
+        this.$apollo.mutate({
+          mutation: DELETE_CART,
+          variables: {
+            id: index,
+          },
+        });
+      }
     },
   },
   mounted() {
@@ -43,5 +118,8 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.phone-name {
+  cursor: pointer;
+}
 </style>
