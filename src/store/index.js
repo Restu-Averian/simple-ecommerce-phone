@@ -5,7 +5,7 @@ import createPersistedData from 'vuex-persistedstate'
 Vue.use(Vuex)
 const persistedData = createPersistedData({
   // paths:['dataHp'],
-  key:"dataHp"
+  key:"dataHp",
 })
 export default new Vuex.Store({
   plugins:[persistedData],

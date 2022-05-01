@@ -22,11 +22,35 @@
           </div>
         </div>
       </div>
-      <div class="col-9 text-start">
+
+      <div class="col-5 text-start">
         <div class="judulHp">
           <h2>{{ dataDetail.phone_name }}</h2>
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
+          </button>
+        </div>
+        <div class="addToCart">
+          <div
+            class="btn-group"
+            role="group"
+            aria-label="Basic outlined example"
+          >
+            <button @click="decrement" class="btn btn-outline-primary">
+              -
+            </button>
+            <input
+              type="number"
+              v-model="quantity"
+              readonly
+              class="text-center"
+            />
+            <button @click="increment" class="btn btn-outline-primary">
+              +
+            </button>
+          </div>
+          <button class="btn btn-primary m-5" @click="AddToCart()">
+            Add to Cart
           </button>
         </div>
         <div class="deskripsi my-3">
@@ -132,20 +156,7 @@ const ADD_COMMENT = gql(
 
   `
 );
-const ADD_LIKE_DISLIKE = gql(
-  `
-  mutation MyMutation($id: Int!, $_inc: komentar_inc_input!) {
-  update_komentar_by_pk(pk_columns: {id: $id}, _inc: $_inc) {
-    id
-    jumlahDislike
-    jumlahLike
-    komentarUser
-    phoneName
-    userName
-  }
-}
-  `
-);
+
 const SubscriptionComment = gql(
   `
   subscription SubscriptionComment($_eq: String!) {
@@ -160,6 +171,25 @@ const SubscriptionComment = gql(
 }
   `
 );
+const ADD_CART = gql(
+  `
+  mutation MyMutation($objects: [cart_insert_input!] = {}) {
+  insert_cart(objects: $objects) {
+    returning {
+      id_userName
+      id
+      phone_slug
+      phone_name
+      quantity
+      user {
+        userName
+      }
+    }
+  }
+}
+
+  `
+);
 export default {
   data() {
     return {
@@ -170,6 +200,7 @@ export default {
       LikeOrNot: false,
       DislikeOrNot: false,
       AllComment: [],
+      quantity: 0,
     };
   },
   apollo: {
@@ -197,6 +228,46 @@ export default {
           this.dataDetail = response.data.data;
         });
     },
+    decrement() {
+      if (this.quantity <= 0) {
+        alert("Tidak bisa kecil dari 0");
+      } else {
+        this.quantity -= 1;
+      }
+    },
+    increment() {
+      if (this.quantity >= 90) {
+        alert("Melebihi stock");
+      } else {
+        this.quantity += 1;
+      }
+    },
+    AddToCart() {
+      let Users = JSON.parse(localStorage.getItem("dataHp"));
+
+      if (Users) {
+        if (this.quantity == 0) {
+          alert("Masih 0");
+        } else {
+          this.$apollo.mutate({
+            mutation: ADD_CART,
+            variables: {
+              objects: {
+                id_userName: Users.dataHp.UserLogin.id,
+                phone_slug: this.$route.params.detail,
+                image: this.dataDetail.thumbnail,
+                quantity: this.quantity,
+                phone_name: this.dataDetail.phone_name,
+              },
+            },
+          });
+          alert("Berhasil masukkan ke cart");
+        }
+      } else {
+        alert("Login terlebih dahulu");
+        this.$router.push("/login");
+      }
+    },
     async AddComment() {
       let users = localStorage.getItem("dataHp");
 
@@ -218,91 +289,6 @@ export default {
         alert("Login terlebih dahulu");
         this.$router.push("/login");
       }
-    },
-    //Process of Like
-    async AddLike(index) {
-      if (this.LikeOrNot === false) {
-        this.LikeOrNot = true;
-        let hasilMutation = await this.$apollo.mutate({
-          mutation: ADD_LIKE_DISLIKE,
-          variables: {
-            id: index,
-            _inc: {
-              jumlahLike: 1,
-            },
-          },
-        });
-        //Save into LocalStorage
-        this.$store.commit("setLike", [
-          {
-            id: hasilMutation.data.update_komentar_by_pk.id,
-            like: this.LikeOrNot,
-          },
-        ]);
-        console.log("Hasil mutation Add like ", hasilMutation);
-      } else if (this.LikeOrNot === true) {
-        this.LikeOrNot = false;
-        let hasilMutation = await this.$apollo.mutate({
-          mutation: ADD_LIKE_DISLIKE,
-          variables: {
-            id: index,
-            _inc: {
-              jumlahLike: -1,
-            },
-          },
-        });
-        this.$store.commit("setLike", [
-          {
-            id: hasilMutation.data.update_komentar_by_pk.id,
-            like: this.LikeOrNot,
-          },
-        ]);
-        console.log("Hasil mutation Add like ", hasilMutation);
-      }
-      console.log(this.LikeOrNot);
-    },
-    // Process of Dislike
-    async AddDislike(index) {
-      if (this.DislikeOrNot === false) {
-        this.DislikeOrNot = true;
-        let hasilMutation = await this.$apollo.mutate({
-          mutation: ADD_LIKE_DISLIKE,
-          variables: {
-            id: index,
-            _inc: {
-              jumlahDislike: 1,
-            },
-          },
-        });
-        //Save into LocalStorage
-        this.$store.commit("setDislike", [
-          {
-            id: hasilMutation.data.update_komentar_by_pk.id,
-            dislike: this.DislikeOrNot,
-          },
-        ]);
-        console.log("Hasil mutation Add like ", hasilMutation);
-      } else if (this.DislikeOrNot === true) {
-        this.DislikeOrNot = false;
-        let hasilMutation = await this.$apollo.mutate({
-          mutation: ADD_LIKE_DISLIKE,
-          variables: {
-            id: index,
-            _inc: {
-              jumlahDislike: -1,
-            },
-          },
-        });
-        //Save into LocalStorage
-        this.$store.commit("setDislike", [
-          {
-            id: hasilMutation.data.update_komentar_by_pk.id,
-            dislikelike: this.DislikeOrNot,
-          },
-        ]);
-        console.log("Hasil mutation Add like ", hasilMutation);
-      }
-      console.log(this.LikeOrNot);
     },
   },
   mounted() {
