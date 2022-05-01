@@ -108,6 +108,7 @@
           aria-label="Username"
           aria-describedby="basic-addon1"
           v-model="namaOrang"
+          readonly
         />
       </div>
       <div class="input-group">
@@ -126,16 +127,19 @@
           Kirim komentar
         </button>
       </div>
-      <ul class="list-group text-start">
-        <li
-          class="list-group-item"
-          v-for="(komentar, index) in AllComment"
-          :key="index"
-        >
-          <p>User : {{ komentar.userName }}</p>
-          <p>Komentar : {{ komentar.komentarUser }}</p>
-        </li>
-      </ul>
+      <div
+        class="row text-start mb-5"
+        v-for="(komentar, index) in AllComment"
+        :key="index"
+      >
+        <div class="col-1">
+          <img :src="komentar.photo_profile" alt="" />
+        </div>
+        <div class="col-9">
+          <h3>{{ komentar.userName }}</h3>
+          <p>{{ komentar.komentarUser }}</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -148,9 +152,11 @@ const ADD_COMMENT = gql(
   mutation AddComment($object: komentar_insert_input = {}) {
   insert_komentar_one(object: $object) {
     id
-    komentar
+    komentarUser
     phoneName
     userName
+    photo_profile
+    id_user
   }
 }
 
@@ -167,6 +173,9 @@ const SubscriptionComment = gql(
     komentarUser
     phoneName
     userName
+    id_user
+    photo_profile
+
   }
 }
   `
@@ -197,12 +206,11 @@ export default {
       komentarOrang: "",
       dataDetail: [],
       pesanKalauKosong: "Belum ada review",
-      LikeOrNot: false,
-      DislikeOrNot: false,
       AllComment: [],
       quantity: 0,
     };
   },
+
   apollo: {
     $subscribe: {
       AllComment: {
@@ -219,6 +227,10 @@ export default {
     },
   },
   methods: {
+    dataUser() {
+      let user = JSON.parse(localStorage.getItem("dataHp"));
+      this.namaOrang = user.dataHp.UserLogin.username;
+    },
     fetchDataDetail() {
       axios
         .get(
@@ -269,13 +281,14 @@ export default {
       }
     },
     async AddComment() {
-      let users = localStorage.getItem("dataHp");
-
+      let users = JSON.parse(localStorage.getItem("dataHp"));
       if (users) {
         let a = await this.$apollo.mutate({
           mutation: ADD_COMMENT,
           variables: {
             object: {
+              photo_profile: users.dataHp.UserLogin.photo_profile,
+              id_user: users.dataHp.UserLogin.id,
               komentarUser: this.komentarOrang,
               phoneName: this.$route.params.detail,
               userName: this.namaOrang,
@@ -293,6 +306,7 @@ export default {
   },
   mounted() {
     this.fetchDataDetail();
+    this.dataUser();
   },
 };
 </script>
