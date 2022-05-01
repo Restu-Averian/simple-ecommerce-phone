@@ -3,7 +3,11 @@
     <nav>
       <div v-if="LoginOrNot == true">
         <span @click="LogOut" class="btn btn-danger">Logout</span>
-        <p>Login as {{ dataLogin }}</p>
+
+        <p>
+          Login as <img :src="dataLogin.photo" alt="" />
+          {{ dataLogin.username }}
+        </p>
       </div>
       <div v-else>
         <router-link to="/login">Login</router-link> |
@@ -29,19 +33,22 @@ export default {
     userLogin() {
       let user = localStorage.getItem("dataHp");
       let dataUser = JSON.parse(user);
+      console.log(dataUser);
       if (dataUser !== null) {
         //Udh Login
-        this.dataLogin = dataUser.dataHp.UserLogin.username;
+        this.dataLogin = {
+          username: dataUser.dataHp.UserLogin.username,
+          photo: dataUser.dataHp.UserLogin.photo_profile,
+        };
         this.LoginOrNot = true;
       } else {
         // Blum Login
         this.LoginOrNot = false;
-        console.log("it's null");
       }
       console.log(dataUser);
     },
     LogOut() {
-      let keluar = confirm("Yakin dek ? ");
+      let keluar = confirm("Yakin ? ");
       if (keluar) {
         localStorage.removeItem("dataHp");
       }

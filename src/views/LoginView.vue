@@ -23,15 +23,29 @@
 import gql from "graphql-tag";
 const LOGIN_PROCESS = gql(
   `
-    query LoginProcess($userName: String_comparison_exp!, $password: String_comparison_exp!) {
-    users(where: {userName: $userName, password: $password}) {
-        id
-        password
-        userName
-    }
-    }
+    query MyQuery($photo_profile: String_comparison_exp!, $password: String_comparison_exp!, $userName: String_comparison_exp!) {
+  users(where: {photo_profile: $photo_profile, password: $password, userName: $userName}) {
+    id
+    password
+    photo_profile
+    userName
+  }
+}
+
 
     `
+);
+const GOT_PHOTO_PROFILE = gql(
+  `
+  query MyQuery($_eq: Int!) {
+  users(where: {userName: {_eq: $_eq}}) {
+    id
+    photo_profile
+    userName
+  }
+}
+
+  `
 );
 export default {
   data() {
@@ -39,6 +53,16 @@ export default {
       username: "",
       password: "",
     };
+  },
+  computed: {
+    Got_Profile() {
+      return this.$apollo.query({
+        query: GOT_PHOTO_PROFILE,
+        variables: {
+          _eq: this.username,
+        },
+      });
+    },
   },
   methods: {
     async LoginProcess() {
@@ -51,15 +75,18 @@ export default {
           password: {
             _eq: this.password,
           },
+          photo_profile: {
+            _eq: this.Got_Profile.photo_profile,
+          },
         },
       });
-      if (hasilQuery.data.users.length === 0) {
+      if (hasilQuery.data.users.length == 0) {
         alert("Data tidak ditemukan");
       } else {
-        // console.log("Hasil Query after Login : ", hasilQuery.data.users[0].id);
         this.$store.commit("setUserLogin", {
           id: hasilQuery.data.users[0].id,
           username: hasilQuery.data.users[0].userName,
+          photo_profile: hasilQuery.data.users[0].photo_profile,
         });
         alert("Berhasil Login");
         this.$router.push("/");
