@@ -6,28 +6,16 @@
         <img :src="cart.image" alt="" class="w-50" />
       </div>
 
-      <div class="col-6 text-start phone-name" @click="detail(index)">
-        <h3>{{ cart.phone_name }}</h3>
+      <div class="col-6 text-start">
+        <h3 @click="detail(index)" class="phone-name">{{ cart.phone_name }}</h3>
         <p>Kuantitas : {{ cart.quantity }}</p>
+        <h4>Rp {{ cart.price }}</h4>
       </div>
       <div class="col-3">
         <button class="btn btn-danger" @click="deleteCart(cart.id)">
           Hapus
         </button>
       </div>
-      <!-- <div class="col" v-for="(cart, index) in dataCart" :key="index">
-        <button class="btn btn-danger" @click="deleteCart(index)">Hapus</button>
-        <div class="card h-100">
-          <img
-            :src="cart.image"
-            class="card-img-top m-auto w-50"
-            :alt="`produk ke-${cart.id}`"
-          />
-          <div class="card-body">
-            <h5 class="card-title">{{ cart.phone_name }}</h5>
-          </div>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
@@ -45,6 +33,7 @@ const SubscriptionCart = gql(
     quantity
     phone_slug
     phone_name
+    price
   }
 }
 
