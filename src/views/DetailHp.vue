@@ -29,12 +29,97 @@
           <button class="btn btn-light disabled">
             {{ dataDetail.brand }}
           </button>
+
+          <!-- Kalau tidak ada array 12 -->
+          <h3
+            v-if="!dataDetail.specifications[12]"
+            :disabled="(disabel = true)"
+          ></h3>
+
+          <!-- Kalau ada array 12, namun tidak ada price -->
+          <p
+            v-else-if="
+              Object.assign({}, ...dataDetail.specifications[12].specs).key !==
+              'Price'
+            "
+            :disabled="(disabel = true)"
+          ></p>
+
+          <!-- Kalau mata uang rupee -->
+          <h3
+            v-else-if="
+              Object.assign(
+                {},
+                ...dataDetail.specifications[12].specs
+              ).val[0].includes('₹')
+            "
+          >
+            Rp
+            {{
+              Object.assign({}, ...dataDetail.specifications[12].specs)
+                .val[0].slice(1)
+                .replaceAll(",", "") *
+              180 *
+              quantity
+            }}
+          </h3>
+
+          <!-- Kalau mata uang eur -->
+          <!-- Kalau ada array 12 -->
+          <h3
+            v-else-if="
+              Object.assign(
+                {},
+                ...dataDetail.specifications[12].specs
+              ).val[0].includes('EUR')
+            "
+          >
+            Rp
+            {{
+              Object.assign(
+                {},
+                ...dataDetail.specifications[12].specs
+              ).val[0].slice(5, -3) *
+              14000 *
+              quantity
+            }}
+          </h3>
+
+          <!-- Kalau mata uang C -->
+          <!-- Kalau ada array 12 -->
+          <h3
+            v-else-if="
+              Object.assign(
+                {},
+                ...dataDetail.specifications[12].specs
+              ).val[0].includes('$')
+            "
+          >
+            Rp
+            {{
+              Object.assign(
+                {},
+                ...dataDetail.specifications[12].specs
+              ).val[0].slice(1, 5) *
+              14400 *
+              quantity
+            }}
+          </h3>
+
+          <p v-else :disabled="(disabel = true)"></p>
         </div>
         <div class="addToCart">
+          <!-- Kalau informasi g ada -->
+          <div v-if="disabel == true" class="alert alert-danger">
+            Maaf, barang tidak bisa dibeli karena stok habis
+          </div>
+
+          <!-- Kalau informasi ada -->
           <div
             class="btn-group"
             role="group"
             aria-label="Basic outlined example"
+            v-else
           >
             <button @click="decrement" class="btn btn-outline-primary">
               -
@@ -48,10 +133,14 @@
             <button @click="increment" class="btn btn-outline-primary">
               +
             </button>
+            <button
+              class="btn btn-primary m-5"
+              :disabled="disabel"
+              @click="AddToCart()"
+            >
+              Add to Cart
+            </button>
           </div>
-          <button class="btn btn-primary m-5" @click="AddToCart()">
-            Add to Cart
-          </button>
         </div>
         <div class="deskripsi my-3">
           <h4>Deskripsi</h4>
@@ -190,6 +279,7 @@ const ADD_CART = gql(
       phone_slug
       phone_name
       quantity
+      price
       user {
         userName
       }
@@ -207,7 +297,8 @@ export default {
       dataDetail: [],
       pesanKalauKosong: "Belum ada review",
       AllComment: [],
-      quantity: 0,
+      quantity: 1,
+      disabel: false,
     };
   },
 
@@ -237,12 +328,14 @@ export default {
           `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
         )
         .then((response) => {
+          console.log("hasil : ", response);
           this.dataDetail = response.data.data;
         });
     },
+
     decrement() {
-      if (this.quantity <= 0) {
-        alert("Tidak bisa kecil dari 0");
+      if (this.quantity <= 1) {
+        alert("Tidak bisa 0");
       } else {
         this.quantity -= 1;
       }
@@ -254,13 +347,30 @@ export default {
         this.quantity += 1;
       }
     },
+    KalauTidakAdaHarga() {
+      if (
+        Object.assign({}, ...this.dataDetail.specifications[12].specs).key ==
+        "Colors"
+      ) {
+        this.disabel = true;
+      }
+    },
     AddToCart() {
       let Users = JSON.parse(localStorage.getItem("dataHp"));
 
+      //Check login or not
       if (Users) {
-        if (this.quantity == 0) {
-          alert("Masih 0");
+        if (!this.dataDetail.specifications[12]) {
+          // alert("Barang kosong");
+          this.disabel = true;
         } else {
+          let TotalHarga =
+            Object.assign(
+              {},
+              ...this.dataDetail.specifications[12].specs
+            ).val[0].slice(5, -3) *
+            14000 *
+            this.quantity;
           this.$apollo.mutate({
             mutation: ADD_CART,
             variables: {
@@ -270,6 +380,7 @@ export default {
                 image: this.dataDetail.thumbnail,
                 quantity: this.quantity,
                 phone_name: this.dataDetail.phone_name,
+                price: TotalHarga,
               },
             },
           });
