@@ -6,6 +6,7 @@ import DetailHp from '../views/DetailHp.vue'
 import ListHpView from '../views/ListHpView.vue'
 import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import CheckoutView from '../views/CheckoutView.vue'
 
 Vue.use(VueRouter)
 
@@ -54,6 +55,12 @@ const routes = [
     path: '/cart',
     name: 'cart',
     component: CartView
+  },
+ 
+  {
+    path: '/checkout',
+    name: 'checkout',
+    component: CheckoutView
   },
  
  
