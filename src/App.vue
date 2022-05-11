@@ -1,13 +1,15 @@
 <template>
   <div id="app">
+    <!-- {{ dataLogin.isLogin }} -->
     <nav>
-      <div v-if="LoginOrNot == true">
+      <div v-if="DataUser.login">
         <span @click="LogOut" class="btn btn-danger">Logout</span>
-
-        <p>
-          Login as <img :src="dataLogin.photo" alt="" />
-          {{ dataLogin.username }}
-        </p>
+        <div @click="GoToUserPage">
+          <p>
+            Login as <img :src="DataUser.photo_profile" alt="" />
+            {{ DataUser.username }}
+          </p>
+        </div>
       </div>
       <div v-else>
         <router-link to="/login">Login</router-link> |
@@ -20,42 +22,68 @@
   </div>
 </template>
 <script>
+import gql from "graphql-tag";
+const CHANGE_ISLOGIN_STATUS = gql(
+  `
+  mutation MyMutation($_eq: Int!) {
+  update_users(where: {id: {_eq: $_eq}}, _set: {isLogin: false}) {
+    returning {
+      id
+      isLogin
+      kecamatan
+      kelurahan
+      kota
+      no_hp
+      password
+      provinsi
+      photo_profile
+      userName
+    }
+  }
+}
+
+  `
+);
+
+let Users = JSON.parse(localStorage.getItem("dataHp"));
+
 export default {
   data() {
     return {
-      LoginOrNot: false,
       dataLogin: "",
+      LoginOrNot: false,
     };
   },
-  computed: {},
 
-  methods: {
-    userLogin() {
-      let user = localStorage.getItem("dataHp");
-      let dataUser = JSON.parse(user);
-      console.log(dataUser);
-      if (dataUser !== null) {
-        //Udh Login
-        this.dataLogin = {
-          username: dataUser.dataHp.UserLogin.username,
-          photo: dataUser.dataHp.UserLogin.photo_profile,
-        };
-        this.LoginOrNot = true;
-      } else {
-        // Blum Login
-        this.LoginOrNot = false;
-      }
-      console.log(dataUser);
+  computed: {
+    DataUser() {
+      return this.$store.state.dataHp.UserLogin;
     },
-    LogOut() {
+  },
+  methods: {
+    GoToUserPage() {
+      this.$router.push("/user");
+    },
+
+    async LogOut() {
+      let hasilQueryLogout = await this.$apollo.mutate({
+        mutation: CHANGE_ISLOGIN_STATUS,
+        variables: {
+          _eq: Users.dataHp.UserLogin.id,
+        },
+      });
+      console.log("Kok harus di console log dulu :  ", this.DataUser);
       let keluar = confirm("Yakin ? ");
       if (keluar) {
+        this.$store.dispatch("setLogin", {
+          id: this.DataUser.id,
+          username: this.DataUser.username,
+          photo_profile: this.DataUser.photo_profile,
+          login: hasilQueryLogout.data.update_users.returning[0].isLogin,
+        });
         localStorage.removeItem("dataHp");
       }
     },
-  },
-  mounted() {
-    this.userLogin();
   },
 };
 </script>

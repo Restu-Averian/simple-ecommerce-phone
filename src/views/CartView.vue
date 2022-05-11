@@ -1,28 +1,30 @@
 <template>
   <div class="container">
-    {{ checkout }}
     <h1>Cart</h1>
     <div class="alert alert-primary" v-if="dataCart.length === 0">
       {{ messageIfEmptyCart }}
     </div>
-
+    {{ dataCart }}
     <div
       class="form-check row my-5"
       v-for="(cart, index) in dataCart"
       :key="cart.id"
     >
       <div class="col-8">
+        <div v-if="cart.IsCheckout">
+          kondisi isCheckout : {{ cart.isCheckout }}
+        </div>
+        <div v-else>false</div>
+
         <input
           class="form-check-input"
           type="checkbox"
-          v-model="checkout"
-          :checked="check"
+          v-model="cart.isCheckout"
           :value="cart.id"
           @click="AddToCheckout(cart.id)"
           required
           :id="index"
         />
-
         <label class="form-check-label" :for="index">
           <div class="col-3">
             <img :src="cart.image" alt="" class="w-50" />

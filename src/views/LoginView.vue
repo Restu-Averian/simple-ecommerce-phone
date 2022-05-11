@@ -47,6 +47,27 @@ const GOT_PHOTO_PROFILE = gql(
 
   `
 );
+const CHANGE_ISLOGIN_STATUS = gql(
+  `
+  mutation MyMutation($_eq: Int!) {
+  update_users(where: {id: {_eq: $_eq}}, _set: {isLogin: true}) {
+    returning {
+      id
+      isLogin
+      kecamatan
+      kelurahan
+      kota
+      no_hp
+      password
+      provinsi
+      photo_profile
+      userName
+    }
+  }
+}
+
+  `
+);
 export default {
   data() {
     return {
@@ -83,10 +104,21 @@ export default {
       if (hasilQuery.data.users.length == 0) {
         alert("Data tidak ditemukan");
       } else {
-        this.$store.commit("setUserLogin", {
+        let HasilChangeStatus = await this.$apollo.mutate({
+          mutation: CHANGE_ISLOGIN_STATUS,
+          variables: {
+            _eq: hasilQuery.data.users[0].id,
+          },
+        });
+        console.log(
+          "Jalan g ya hasil change status loginnya : ",
+          HasilChangeStatus
+        );
+        this.$store.dispatch("setLogin", {
           id: hasilQuery.data.users[0].id,
           username: hasilQuery.data.users[0].userName,
           photo_profile: hasilQuery.data.users[0].photo_profile,
+          login: HasilChangeStatus.data.update_users.returning[0].isLogin,
         });
         alert("Berhasil Login");
         this.$router.push("/");
