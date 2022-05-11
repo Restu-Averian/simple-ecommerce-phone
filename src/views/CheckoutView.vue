@@ -363,31 +363,25 @@ export default {
           return checkout.phone_name;
         })
       );
-      let SaveIt = confirm("Simpan data untuk pembelian selanjutnya ? ");
-      if (SaveIt) {
-        console.log("Iyah");
-        this.$apollo.mutate({
-          mutation: Save_Checkout_Data,
-          variables: {
-            objects: {
-              ekspedisi: this.jasKirChoosed,
-              id_user: Users.dataHp.UserLogin.id,
-              kecamatan: this.kecamatan,
-              kelurahan: this.kelurahan,
-              kota: this.city,
-              namaUser: Users.dataHp.UserLogin.username,
-              no_hp: this.noHp,
-              ongkir: this.ongkirChoosed,
-              provinsi: this.province,
-              nama_product: DataPhoneName.toString(),
-              TotalPrice: this.totPrice,
-            },
+      alert("Pembelian Berhasil");
+      this.$apollo.mutate({
+        mutation: Save_Checkout_Data,
+        variables: {
+          objects: {
+            ekspedisi: this.jasKirChoosed,
+            id_user: Users.dataHp.UserLogin.id,
+            kecamatan: this.kecamatan,
+            kelurahan: this.kelurahan,
+            kota: this.city,
+            namaUser: Users.dataHp.UserLogin.username,
+            no_hp: this.noHp,
+            ongkir: this.ongkirChoosed,
+            provinsi: this.province,
+            nama_product: DataPhoneName.toString(),
+            TotalPrice: this.totPrice,
           },
-        });
-      } else {
-        alert("Pembelian berhasil");
-      }
-
+        },
+      });
       this.$apollo.mutate({
         mutation: hapusBarang,
         variables: {
@@ -472,6 +466,8 @@ export default {
       if (this.province == "") {
         this.isEmptyCity = true;
         this.city = "";
+        this.kecamatan = "";
+        this.kelurahan = "";
       } else {
         this.isEmptyCity = false;
         let hasilFilter = this.listProvinsi.filter((data) => {
@@ -485,6 +481,7 @@ export default {
       if (this.city == "") {
         this.isEmptyKecamatan = true;
         this.kecamatan = "";
+        this.kelurahan = "";
       } else {
         this.isEmptyKecamatan = false;
 

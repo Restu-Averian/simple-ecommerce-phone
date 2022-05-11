@@ -106,6 +106,26 @@
             }}
           </h3>
 
+          <!-- Kalau mata uang Rp -->
+          <!-- Kalau ada array 12 -->
+          <h3
+            v-else-if="
+              Object.assign(
+                {},
+                ...dataDetail.specifications[12].specs
+              ).val[0].includes('Rp')
+            "
+          >
+            Rp
+            {{
+              Object.assign({}, ...dataDetail.specifications[12].specs)
+                .val[0].slice(-9, -1)
+                .replaceAll(",", "") *
+              14400 *
+              quantity
+            }}
+          </h3>
+
           <p v-else :disabled="(disabel = true)"></p>
         </div>
         <div class="addToCart">
@@ -355,7 +375,7 @@ export default {
         this.disabel = true;
       }
     },
-    AddToCart() {
+    async AddToCart() {
       let Users = JSON.parse(localStorage.getItem("dataHp"));
 
       //Check login or not
@@ -364,14 +384,74 @@ export default {
           // alert("Barang kosong");
           this.disabel = true;
         } else {
-          let TotalHarga =
+          let TotalHarga;
+          if (
             Object.assign(
               {},
               ...this.dataDetail.specifications[12].specs
-            ).val[0].slice(5, -3) *
-            14000 *
-            this.quantity;
-          this.$apollo.mutate({
+            ).val[0].includes("₹")
+          ) {
+            TotalHarga =
+              Object.assign({}, ...this.dataDetail.specifications[12].specs)
+                .val[0].slice(1)
+                .replaceAll(",", "") *
+              180 *
+              this.quantity;
+          } else if (
+            Object.assign(
+              {},
+              ...this.dataDetail.specifications[12].specs
+            ).val[0].includes("EUR")
+          ) {
+            TotalHarga =
+              Object.assign(
+                {},
+                ...this.dataDetail.specifications[12].specs
+              ).val[0].slice(5, -3) *
+              14000 *
+              this.quantity;
+          } else if (
+            Object.assign(
+              {},
+              ...this.dataDetail.specifications[12].specs
+            ).val[0].includes("$")
+          ) {
+            TotalHarga =
+              Object.assign(
+                {},
+                ...this.dataDetail.specifications[12].specs
+              ).val[0].slice(1, 5) *
+              14400 *
+              this.quantity;
+          } else if (
+            Object.assign(
+              {},
+              ...this.dataDetail.specifications[12].specs
+            ).val[0].includes("C$")
+          ) {
+            TotalHarga =
+              Object.assign(
+                {},
+                ...this.dataDetail.specifications[12].specs
+              ).val[0].slice(1, 5) *
+              14400 *
+              this.quantity;
+          } else if (
+            Object.assign(
+              {},
+              ...this.dataDetail.specifications[12].specs
+            ).val[0].includes("Rp")
+          ) {
+            TotalHarga =
+              Object.assign({}, ...this.dataDetail.specifications[12].specs)
+                .val[0].slice(-9, -1)
+                .replaceAll(",", "") *
+              14400 *
+              this.quantity;
+          }
+
+          console.log("Total harga : ", TotalHarga);
+          let hasilAddCart = await this.$apollo.mutate({
             mutation: ADD_CART,
             variables: {
               objects: {
@@ -384,6 +464,7 @@ export default {
               },
             },
           });
+          console.log("Hasil Add to Cart : ", hasilAddCart);
           alert("Berhasil masukkan ke cart");
         }
       } else {
