@@ -1,11 +1,60 @@
 <template>
   <div class="my-4">
-    <h2>Top By Fans</h2>
+    <div class="center examplex">
+      <vs-table striped>
+        <template #thead>
+          <vs-tr>
+            <vs-th> No </vs-th>
+            <vs-th> Devices </vs-th>
+            <vs-th> Favourites </vs-th>
+          </vs-tr>
+        </template>
+        <template #tbody>
+          <vs-tr :key="i" v-for="(fans, i) in dataTopByFans" @click="detail(i)">
+            <vs-td>
+              {{ i + 1 }}
+            </vs-td>
+            <vs-td>
+              {{ fans.phone_name }}
+            </vs-td>
+            <vs-td>
+              <i class="bx bxs-heart" style="color: red"></i
+              >{{ fans.favorites }}
+            </vs-td>
+          </vs-tr>
+        </template>
+      </vs-table>
+    </div>
   </div>
 </template>
 
 <script>
-export default {};
+import axios from "axios";
+export default {
+  data() {
+    return {
+      dataTopByFans: [],
+    };
+  },
+  methods: {
+    fetchTopByFans() {
+      axios
+        .get("https://api-mobilespecs.azharimm.site/v2/top-by-fans")
+        .then((result) => {
+          this.dataTopByFans = result.data.data.phones;
+        });
+    },
+    detail(index) {
+      console.log("tes : ", this.dataTopByFans);
+      this.$router.push(
+        `/home/${this.dataTopByFans[index].slug}/${this.dataTopByFans[index].slug}`
+      );
+    },
+  },
+  mounted() {
+    this.fetchTopByFans();
+  },
+};
 </script>
 
 <style>

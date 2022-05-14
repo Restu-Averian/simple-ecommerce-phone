@@ -346,9 +346,16 @@ export default {
   mounted() {
     this.fetchListProvinsi();
     this.fetchDataUser();
-    if (!Users) {
+    console.log("haha : ", this.$store.state.dataHp.UserLogin.login);
+    if (this.$store.state.dataHp.UserLogin.login === undefined) {
+      alert("Login dulu");
       this.$router.push("/login");
+    } else if (this.$store.state.dataHp.UserLogin.login === true) {
+      console.log(Users);
     }
+    // if (!Users) {
+    //   this.$router.push("/login");
+    // }
   },
 };
 </script>

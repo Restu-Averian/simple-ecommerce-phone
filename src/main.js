@@ -11,8 +11,20 @@ import VueApollo from 'vue-apollo'
 import { split } from 'apollo-link'
 import { WebSocketLink } from 'apollo-link-ws'
 import { getMainDefinition } from 'apollo-utilities'
-Vue.config.productionTip = false
 
+import Buefy from 'buefy'
+import 'buefy/dist/buefy.css'
+Vue.use(Buefy)
+
+import iView from 'iview';
+import 'iview/dist/styles/iview.css';
+Vue.use(iView);
+
+import Vuesax from 'vuesax'
+import 'vuesax/dist/vuesax.css' //Vuesax styles
+Vue.use(Vuesax)
+
+Vue.config.productionTip = false
 
 // HTTP connection to the API
 const httpLink = createHttpLink({
