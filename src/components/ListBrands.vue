@@ -1,16 +1,30 @@
 <template>
-  <div class="my-4">
-    <h2>List Brands</h2>
-    <ul class="list-group">
-      <li
-        class="list-group-item custom-li"
-        v-for="(brands, index) in dataBrands"
+  <div class="my-6">
+    <Divider><h1 class="title is-3">Brands</h1></Divider>
+    <vs-row>
+      <vs-col
+        v-for="(brands, index) in dataBrands.slice(0, 6)"
         :key="index"
-        @click="goToHp(index, brands.brand_slug)"
+        vs-type="flex"
+        vs-justify="space-between"
+        vs-align="center"
+        class="my-5 custom-li"
+        :lg="4"
+        :xs="6"
       >
-        {{ brands.brand_name }} ( {{ brands.device_count }} )
-      </li>
-    </ul>
+        <div @click="goToHp(index, brands.brand_slug)">
+          <h4 class="title is-3">
+            {{ brands.brand_name }}
+          </h4>
+          <p class="subtitle is-5">{{ brands.device_count }} Devices</p>
+        </div>
+      </vs-col>
+    </vs-row>
+    <vs-row>
+      <vs-col>
+        <vs-button active flat class="mx-auto">Show More</vs-button>
+      </vs-col>
+    </vs-row>
   </div>
 </template>
 

@@ -1,27 +1,13 @@
 <template>
   <div id="app">
     <!-- {{ dataLogin.isLogin }} -->
-    <nav>
-      <div v-if="DataUser.login">
-        <span @click="LogOut" class="btn btn-danger">Logout</span>
-        <div @click="GoToUserPage">
-          <p>
-            Login as <img :src="DataUser.photo_profile" alt="" />
-            {{ DataUser.username }}
-          </p>
-        </div>
-      </div>
-      <div v-else>
-        <router-link to="/login">Login</router-link> |
-        <router-link to="/register">Register</router-link> |
-      </div>
-      <router-link to="/">Home</router-link> |
-      <router-link to="/cart">Cart</router-link>
-    </nav>
+    <navbar-comp />
+
     <router-view />
   </div>
 </template>
 <script>
+import NavbarComp from "./components/NavbarComp.vue";
 import gql from "graphql-tag";
 const CHANGE_ISLOGIN_STATUS = gql(
   `
@@ -48,6 +34,9 @@ const CHANGE_ISLOGIN_STATUS = gql(
 let Users = JSON.parse(localStorage.getItem("dataHp"));
 
 export default {
+  components: {
+    NavbarComp,
+  },
   data() {
     return {
       dataLogin: "",
@@ -106,6 +95,5 @@ nav a {
 }
 
 nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>

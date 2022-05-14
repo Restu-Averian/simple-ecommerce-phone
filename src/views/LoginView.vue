@@ -1,22 +1,30 @@
 <template>
-  <div class="container">
+  <Card style="width: 320px" class="mx-auto my-5">
     <h1>Login</h1>
-    <form class="text-start" @submit.prevent="LoginProcess">
+
+    <form class="has-text-centered my-5" @submit.prevent="LoginProcess">
       <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Username</label>
-        <input type="text" class="form-control" v-model="username" />
+        <vs-input v-model="username" type="text" placeholder="Username">
+          <template #icon>
+            <i class="bx bx-user"></i>
+          </template>
+        </vs-input>
       </div>
       <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" class="form-control" v-model="password" />
+        <vs-input type="password" v-model="password" placeholder="Password">
+          <template #icon>
+            <i class="bx bx-lock-open-alt"></i>
+          </template>
+        </vs-input>
       </div>
-      <button type="submit" class="btn btn-primary">Login</button>
+      <vs-button flat type="submit" class="mx-auto my-5">Login</vs-button>
+      <!-- <button type="submit" class="btn btn-primary">Login</button> -->
     </form>
     <p class="small-text">
       Haven't an account before ?
       <router-link to="/register">Register here!</router-link>
     </p>
-  </div>
+  </Card>
 </template>
 
 <script>
