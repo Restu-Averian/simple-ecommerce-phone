@@ -1,10 +1,9 @@
 <template>
-  <div class="my-6 center">
+  <div style="margin: 120px 0px">
     <Divider><h1 class="title is-3">Latests</h1></Divider>
-
     <vs-row>
       <vs-col
-        v-for="(latests, index) in dataLatests.slice(0, 8)"
+        v-for="(latests, index) in dataLatests"
         :key="index"
         vs-type="flex"
         vs-justify="space-between"
@@ -29,9 +28,6 @@
         </vs-card>
       </vs-col>
     </vs-row>
-    <vs-button flat active class="mx-auto" @click="goTo('/latest')"
-      >Show More</vs-button
-    >
   </div>
 </template>
 
@@ -57,15 +53,9 @@ export default {
         `/home/${this.dataLatests[index].slug}/${this.dataLatests[index].slug}`
       );
     },
-    goTo(path) {
-      this.$router.push(path);
-    },
   },
   mounted() {
     this.fetchDataLatests();
   },
 };
 </script>
-
-<style>
-</style>

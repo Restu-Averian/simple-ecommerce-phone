@@ -1,9 +1,10 @@
 <template>
-  <div class="my-6">
+  <div style="margin: 120px 0px">
     <Divider><h1 class="title is-3">Brands</h1></Divider>
+
     <vs-row>
       <vs-col
-        v-for="(brands, index) in dataBrands.slice(0, 6)"
+        v-for="(brands, index) in dataBrands"
         :key="index"
         vs-type="flex"
         vs-justify="space-between"
@@ -35,13 +36,6 @@
             </vs-button>
           </template>
         </vs-card>
-      </vs-col>
-    </vs-row>
-    <vs-row>
-      <vs-col>
-        <vs-button active flat class="mx-auto" to="/brands"
-          >Show More</vs-button
-        >
       </vs-col>
     </vs-row>
   </div>
