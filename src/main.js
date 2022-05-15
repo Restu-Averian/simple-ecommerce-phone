@@ -33,7 +33,7 @@ const httpLink = createHttpLink({
 })
 // Create the subscription websocket link
 const wsLink = new WebSocketLink({
-  uri: 'ws://magnetic-macaque-48.hasura.app/v1/graphql',
+  uri: 'wss://magnetic-macaque-48.hasura.app/v1/graphql',
   //ws untuk http, wss untuk https, g terlalu masalah, namun utk protocol sahaja
   
   options: {

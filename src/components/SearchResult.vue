@@ -1,10 +1,12 @@
 <template>
-  <div class="my-6 center">
-    <Divider><h1 class="title is-3">Latests</h1></Divider>
+  <div class="container" style="margin: 120px auto">
+    <Divider
+      ><h1 class="title is-3">{{ dataSearch.title }}</h1></Divider
+    >
 
     <vs-row>
       <vs-col
-        v-for="(latests, index) in dataLatests.slice(0, 8)"
+        v-for="(hp, index) in dataSearch.phones"
         :key="index"
         vs-type="flex"
         vs-justify="space-between"
@@ -16,12 +18,12 @@
       >
         <vs-card style="width: 220px" class="mx-auto" @click="detail(index)">
           <template #text>
-            <h2 class="title mt-5 is-5">{{ latests.phone_name }}</h2>
+            <h2 class="title mt-5 is-5">{{ hp.phone_name }}</h2>
           </template>
           <template #img>
             <img
               class="my-5"
-              :src="latests.image"
+              :src="hp.image"
               :alt="`latest-${index}`"
               style="width: 100px"
             />
@@ -29,9 +31,6 @@
         </vs-card>
       </vs-col>
     </vs-row>
-    <vs-button flat active class="mx-auto" @click="goTo('/latest')"
-      >Show More</vs-button
-    >
   </div>
 </template>
 
@@ -40,29 +39,31 @@ import axios from "axios";
 export default {
   data() {
     return {
-      dataLatests: [],
+      dataSearch: [],
     };
   },
   methods: {
-    fetchDataLatests() {
+    fetchSearch() {
       axios
-        .get("https://api-mobilespecs.azharimm.site/v2/latest")
+        .get(
+          `https://api-mobilespecs.azharimm.site/v2/search?query=${this.$route.params.search}`
+        )
         .then((result) => {
-          this.dataLatests = result.data.data.phones;
+          // console.log("Resultnya : ", result.data.data);
+          this.dataSearch = result.data.data;
         });
     },
     detail(index) {
-      console.log("tes : ", this.dataLatests);
       this.$router.push(
-        `/home/${this.dataLatests[index].slug}/${this.dataLatests[index].slug}`
+        `/home/${this.dataSearch.phones[index].slug}/${this.dataSearch.phones[index].slug}`
       );
-    },
-    goTo(path) {
-      this.$router.push(path);
     },
   },
   mounted() {
-    this.fetchDataLatests();
+    this.fetchSearch();
+  },
+  updated() {
+    this.fetchSearch();
   },
 };
 </script>

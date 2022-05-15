@@ -8,6 +8,9 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import UserView from '../views/UserView.vue'
+import LatestHpView from '../views/LatestHpView.vue'
+import ListBrandsView from '../views/ListBrandsView.vue'
+import SearchView from '../views/SearchView.vue'
 
 Vue.use(VueRouter)
 
@@ -42,16 +45,7 @@ const routes = [
     component:DetailHp      
   },
   
-  // {
-  //   path: '/:list',
-  //   name: 'list',
-  //   component: ListHpView
-  // },
-  // {
-  //   path: '/:list/:detail',
-  //   name: 'detail',
-  //   component: DetailHp
-  // },
+  
   {
     path: '/cart',
     name: 'cart',
@@ -68,6 +62,24 @@ const routes = [
     path: '/user',
     name: 'user',
     component: UserView
+  },
+ 
+  {
+    path: '/latest',
+    name: 'latest',
+    component: LatestHpView
+  },
+ 
+  {
+    path: '/brands',
+    name: 'brands',
+    component: ListBrandsView
+  },
+ 
+  {
+    path: '/search/:search',
+    name: 'search',
+    component: SearchView
   },
  
  

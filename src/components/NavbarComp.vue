@@ -18,10 +18,10 @@
         <vs-input
           type="search"
           v-model="search"
-          @keydown.enter="searchProduct(search, 'top-center', 'danger', 2000)"
+          @keydown.enter="searchProduct('top-center', 'danger', 2000)"
           icon-after
           placeholder="Search by product name..."
-          @click-icon="searchProduct(search, 'top-center', 'danger', 2000)"
+          @click-icon="searchProduct('top-center', 'danger', 2000)"
         >
           <template #icon>
             <i class="bx bx-search-alt-2"></i>
@@ -47,6 +47,9 @@
           <DropdownMenu slot="list">
             <DropdownItem>
               <p @click="GoToUserPage">Account Information</p>
+            </DropdownItem>
+            <DropdownItem>
+              <p @click="LogOut">Logout</p>
             </DropdownItem>
           </DropdownMenu>
         </Dropdown>
@@ -148,7 +151,11 @@
             <img :src="DataUser.photo_profile" alt="" />
           </vs-avatar>
 
-          <vs-avatar badge-color="danger" badge-position="top-right">
+          <vs-avatar
+            badge-color="danger"
+            badge-position="top-right"
+            @click="goTo('/cart')"
+          >
             <i class="bx bx-cart"></i>
 
             <template #badge> {{ dataCart }} </template>
@@ -160,27 +167,26 @@
 </template>
 
 <script>
-import gql from "graphql-tag";
+// import gql from "graphql-tag";
+import axios from "axios";
 
-const GET_CART = gql(
-  `
-subscription MySubscription($_eq: Int!) {
-  cart(where: {id_userName: {_eq: $_eq}}) {
-    IsCheckout
-    id
-    id_userName
-    image
-    phone_name
-    price
-    phone_slug
-    quantity
-  }
-}
+// const GET_CART = gql(
+//   `
+// subscription MySubscription($_eq: Int!) {
+//   cart(where: {id_userName: {_eq: $_eq}, user: {isLogin: {_eq: true}}}) {
+//     IsCheckout
+//     id
+//     id_userName
+//     image
+//     phone_name
+//     price
+//     phone_slug
+//     quantity
+//   }
+// }
 
-
-
-  `
-);
+//   `
+// );
 export default {
   data() {
     return {
@@ -188,34 +194,46 @@ export default {
       LoginOrNot: false,
       active: "",
       search: "",
+      dataSearch: [],
       activeSidebar: false,
       dataCart: [],
+      value1: "",
+      data1: [],
+      name: "",
+      selected: null,
     };
   },
 
   computed: {
     DataUser() {
+      if (this.$store.state.dataHp.UserLogin === "") {
+        console.log("data user : ");
+      }
       return this.$store.state.dataHp.UserLogin;
     },
   },
-  apollo: {
-    $subscribe: {
-      dataCart: {
-        query: GET_CART,
-        variables() {
-          return {
-            _eq: this.$store.state.dataHp.UserLogin.id,
-          };
-        },
-        result({ data }) {
-          this.dataCart = data.cart.length;
-        },
-      },
-    },
-  },
+  // apollo: {
+  //   $subscribe: {
+  //     dataCart: {
+  //       query: GET_CART,
+  //       variables() {
+  //         return {
+  //           _eq: this.$store.state.dataHp.UserLogin.id,
+  //         };
+  //       },
+  //       result({ data }) {
+  //         if (this.$store.state.dataHp.UserLogin === "") {
+  //           console.log("kalau blm ada ");
+  //         } else {
+  //           this.dataCart = data.cart.length;
+  //         }
+  //       },
+  //     },
+  //   },
+  // },
   methods: {
-    searchProduct(key, position = null, color, duration) {
-      if (key === "") {
+    searchProduct(position = null, color, duration) {
+      if (this.search === "") {
         this.$vs.notification({
           color,
           duration,
@@ -224,9 +242,18 @@ export default {
           title: "Pencarianmu masih kosong",
           text: "Mohon diisi dulu inputannya agar dapat melakukan pencarian",
         });
+      } else {
+        axios
+          .get(
+            `https://api-mobilespecs.azharimm.site/v2/search?query=${this.search}`
+          )
+          .then((result) => {
+            this.dataSearch = result.data.data.phones;
+            console.log("hasil search : ", this.dataSearch);
+          });
+        this.$router.push(`/search/${this.search}`);
+        this.search = "";
       }
-
-      console.log("Search : ", key);
     },
     goTo(path) {
       console.log("path : ", path);
