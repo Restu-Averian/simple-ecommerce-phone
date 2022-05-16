@@ -25,23 +25,12 @@
           <template #text>
             <p class="subtitle is-5">{{ brands.device_count }} Devices</p>
           </template>
-          <template #interactions>
-            <vs-button danger icon>
-              <i class="bx bx-heart"></i>
-            </vs-button>
-            <vs-button class="btn-chat" shadow primary>
-              <i class="bx bx-chat"></i>
-              <span class="span"> 54 </span>
-            </vs-button>
-          </template>
         </vs-card>
       </vs-col>
     </vs-row>
     <vs-row>
       <vs-col>
-        <vs-button active flat class="mx-auto" to="/brands"
-          >Show More</vs-button
-        >
+        <vs-button class="mx-auto" to="/brands">Show More</vs-button>
       </vs-col>
     </vs-row>
   </div>

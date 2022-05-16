@@ -29,9 +29,7 @@
         </vs-card>
       </vs-col>
     </vs-row>
-    <vs-button flat active class="mx-auto" @click="goTo('/latest')"
-      >Show More</vs-button
-    >
+    <vs-button class="mx-auto" @click="goTo('/latest')">Show More</vs-button>
   </div>
 </template>
 

@@ -15,19 +15,22 @@
         </vs-button>
       </template>
       <template>
-        <vs-input
-          type="search"
-          v-model="search"
-          @keydown.enter="searchProduct('top-center', 'danger', 2000)"
-          icon-after
-          placeholder="Search by product name..."
-          @click-icon="searchProduct('top-center', 'danger', 2000)"
-        >
-          <template #icon>
-            <i class="bx bx-search-alt-2"></i>
-          </template>
-          >
-        </vs-input>
+        <div class="field">
+          <p class="control has-icons-left has-icons-right">
+            <input
+              class="input is-info"
+              type="search"
+              v-model="search"
+              @keydown.enter="searchProduct('top-center', 'danger', 2000)"
+              placeholder="Search by product name..."
+              @click-icon="searchProduct('top-center', 'danger', 2000)"
+            />
+
+            <span class="icon is-small is-right">
+              <i class="bx bx-search-alt-2"></i>
+            </span>
+          </p>
+        </div>
       </template>
       <template #right v-if="DataUser.login">
         <vs-avatar
@@ -106,7 +109,12 @@
       </b-navbar-item> -->
       </template>
       <template #right v-else>
-        <vs-button @click="goTo('/login', 1)"> Login </vs-button>
+        <vs-button
+          @click="goTo('/login', 1)"
+          style="padding: 2px 6px; font-size: 18px"
+        >
+          Login
+        </vs-button>
       </template>
     </vs-navbar>
 
@@ -288,5 +296,12 @@ export default {
 }
 vs-avatar {
   cursor: pointer;
+}
+input {
+  border: 1px solid red;
+}
+.control.has-icons-left .input,
+.control.has-icons-left .select select {
+  padding-left: 0.5em;
 }
 </style>
