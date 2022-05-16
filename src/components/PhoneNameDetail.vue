@@ -1,73 +1,140 @@
 <template>
-  <div class="container mx-auto" style="margin: 120px auto">
-    <vs-row>
-      <vs-col
-        :lg="4"
-        :sm="6"
-        :xs="12"
-        vs-type="flex"
-        vs-justify="center"
-        vs-align="center"
-        w="4"
-      >
-        <image-detail-hp />
-      </vs-col>
-      <vs-col w="8" :lg="4" :sm="6" :xs="12">
-        <phone-name-detail />
-      </vs-col>
+  <vs-col>
+    <vs-row class="mb-3">
+      <h1 class="title is-1">{{ dataDetail.phone_name }}</h1>
     </vs-row>
+
+    <!-- Harga -->
     <vs-row class="my-5">
-      <Divider><h1 class="title is-3">Deskripsi dan Review</h1></Divider>
+      <!-- Kalau tidak ada array 12 -->
+      <h3
+        v-if="!dataDetail.specifications[12]"
+        :disabled="(disabel = true)"
+        class="subtitle is-3"
+      ></h3>
+
+      <!-- Kalau ada array 12, namun tidak ada price -->
+      <p
+        v-else-if="
+          Object.assign({}, ...dataDetail.specifications[12].specs).key !==
+          'Price'
+        "
+        :disabled="(disabel = true)"
+      ></p>
+
+      <!-- Kalau mata uang rupee -->
+      <h3
+        v-else-if="
+          Object.assign(
+            {},
+            ...dataDetail.specifications[12].specs
+          ).val[0].includes('₹')
+        "
+        class="subtitle is-3"
+      >
+        Rp
+        {{
+          Object.assign({}, ...dataDetail.specifications[12].specs)
+            .val[0].slice(1)
+            .replaceAll(",", "") *
+          180 *
+          quantity
+        }}
+      </h3>
+
+      <!-- Kalau mata uang eur
+          Kalau ada array 12 -->
+      <h3
+        v-else-if="
+          Object.assign(
+            {},
+            ...dataDetail.specifications[12].specs
+          ).val[0].includes('EUR')
+        "
+        class="subtitle is-3"
+      >
+        Rp
+        {{
+          Object.assign(
+            {},
+            ...dataDetail.specifications[12].specs
+          ).val[0].slice(5, -3) *
+          14000 *
+          quantity
+        }}
+      </h3>
+
+      <!-- Kalau mata uang C
+          Kalau ada array 12 -->
+      <h3
+        v-else-if="
+          Object.assign(
+            {},
+            ...dataDetail.specifications[12].specs
+          ).val[0].includes('$')
+        "
+        class="subtitle is-3"
+      >
+        Rp
+        {{
+          Object.assign(
+            {},
+            ...dataDetail.specifications[12].specs
+          ).val[0].slice(1, 5) *
+          14400 *
+          quantity
+        }}
+      </h3>
+
+      <!-- Kalau mata uang Rp
+          Kalau ada array 12 -->
+      <h3
+        v-else-if="
+          Object.assign(
+            {},
+            ...dataDetail.specifications[12].specs
+          ).val[0].includes('Rp')
+        "
+        class="subtitle is-3"
+      >
+        Rp
+        {{
+          Object.assign({}, ...dataDetail.specifications[12].specs)
+            .val[0].slice(-9, -1)
+            .replaceAll(",", "") *
+          14400 *
+          quantity
+        }}
+      </h3>
+
+      <p v-else :disabled="(disabel = true)"></p>
+      <!-- <h3 class="subtitle is-3">Rp 24999000</h3> -->
     </vs-row>
-    <Tabs>
-      <TabPane label="Deskripsi">
-        <deskripsi-detail />
-      </TabPane>
-      <TabPane label="Review"> <review-comp /> </TabPane>
-    </Tabs>
-  </div>
+
+    <!-- Btn Quantity -->
+    <vs-row style="margin-left: -20px">
+      <vs-button @click="decrement" style="position: relative; left: 20px"
+        >-</vs-button
+      >
+      <vs-input v-model="quantity" type="number" readonly />
+      <vs-button @click="increment" style="position: relative; right: 20px"
+        >+</vs-button
+      >
+    </vs-row>
+
+    <!-- Btn Cart -->
+    <vs-row class="my-5" vs-type="flex" vs-justify="center">
+      <vs-button @click="AddToCart" style="padding: 2px 8px; font-size: 16px"
+        >Add to Cart</vs-button
+      >
+    </vs-row>
+  </vs-col>
 </template>
 
 <script>
-import ImageDetailHp from "../components/ImageDetailHp.vue";
-import PhoneNameDetail from "../components/PhoneNameDetail.vue";
-import DeskripsiDetail from "../components/DeskripsiDetail.vue";
-import ReviewComp from "../components/ReviewComp.vue";
-import gql from "graphql-tag";
 import axios from "axios";
-const ADD_COMMENT = gql(
-  `
-  mutation AddComment($object: komentar_insert_input = {}) {
-  insert_komentar_one(object: $object) {
-    id
-    komentarUser
-    phoneName
-    userName
-    photo_profile
-    id_user
-  }
-}
+import gql from "graphql-tag";
 
-  `
-);
-
-const SubscriptionComment = gql(
-  `
-  subscription SubscriptionComment($_eq: String!) {
-  komentar(order_by: {userName: asc}, where: {phoneName: {_eq: $_eq}}) {
-    id
-    jumlahDislike
-    jumlahLike
-    komentarUser
-    phoneName
-    userName
-    id_user
-    photo_profile
-
-  }
-}
-  `
-);
 const ADD_CART = gql(
   `
   mutation MyMutation($objects: [cart_insert_input!] = {}) {
@@ -89,44 +156,13 @@ const ADD_CART = gql(
   `
 );
 export default {
-  components: {
-    ImageDetailHp,
-    PhoneNameDetail,
-    DeskripsiDetail,
-    ReviewComp,
-  },
   data() {
     return {
-      namaOrang: "",
-      komentarOrang: "",
-      dataDetail: [],
-      pesanKalauKosong: "Belum ada review",
-      AllComment: [],
       quantity: 1,
-      disabel: false,
+      dataDetail: [],
     };
   },
-
-  apollo: {
-    $subscribe: {
-      AllComment: {
-        query: SubscriptionComment,
-        variables() {
-          return {
-            _eq: this.$route.params.detail,
-          };
-        },
-        result({ data }) {
-          this.AllComment = data.komentar;
-        },
-      },
-    },
-  },
   methods: {
-    dataUser() {
-      let user = JSON.parse(localStorage.getItem("dataHp"));
-      this.namaOrang = user.dataHp.UserLogin.username;
-    },
     fetchDataDetail() {
       axios
         .get(
@@ -136,29 +172,6 @@ export default {
           console.log("hasil : ", response);
           this.dataDetail = response.data.data;
         });
-    },
-
-    decrement() {
-      if (this.quantity <= 1) {
-        alert("Tidak bisa 0");
-      } else {
-        this.quantity -= 1;
-      }
-    },
-    increment() {
-      if (this.quantity >= 90) {
-        alert("Melebihi stock");
-      } else {
-        this.quantity += 1;
-      }
-    },
-    KalauTidakAdaHarga() {
-      if (
-        Object.assign({}, ...this.dataDetail.specifications[12].specs).key ==
-        "Colors"
-      ) {
-        this.disabel = true;
-      }
     },
     async AddToCart() {
       let Users = JSON.parse(localStorage.getItem("dataHp"));
@@ -257,36 +270,29 @@ export default {
         this.$router.push("/login");
       }
     },
-    async AddComment() {
-      let users = JSON.parse(localStorage.getItem("dataHp"));
-      if (users) {
-        let a = await this.$apollo.mutate({
-          mutation: ADD_COMMENT,
-          variables: {
-            object: {
-              photo_profile: users.dataHp.UserLogin.photo_profile,
-              id_user: users.dataHp.UserLogin.id,
-              komentarUser: this.komentarOrang,
-              phoneName: this.$route.params.detail,
-              userName: this.namaOrang,
-            },
-          },
-        });
-        console.log("hasil mutate", a);
-        this.namaOrang = "";
-        this.komentarOrang = "";
+    decrement() {
+      if (this.quantity <= 1) {
+        alert("Tidak bisa 0");
       } else {
-        alert("Login terlebih dahulu");
-        this.$router.push("/login");
+        this.quantity -= 1;
+      }
+    },
+    increment() {
+      if (this.quantity >= 90) {
+        alert("Melebihi stock");
+      } else {
+        this.quantity += 1;
       }
     },
   },
   mounted() {
     this.fetchDataDetail();
-    this.dataUser();
   },
 };
 </script>
 
-<style>
+<style >
+.vs-input {
+  text-align: center;
+}
 </style>
