@@ -1,7 +1,9 @@
 <template>
   <vs-col>
     <vs-row class="mb-3">
-      <h1 class="title is-1">{{ dataDetail.phone_name }}</h1>
+      <h1 class="title is-1 is-size-3-mobile has-text-left">
+        {{ dataDetail.phone_name }}
+      </h1>
     </vs-row>
 
     <!-- Harga -->
@@ -10,7 +12,7 @@
       <h3
         v-if="!dataDetail.specifications[12]"
         :disabled="(disabel = true)"
-        class="subtitle is-3"
+        class="subtitle is-3 is-size-4-mobile"
       ></h3>
 
       <!-- Kalau ada array 12, namun tidak ada price -->
@@ -30,7 +32,7 @@
             ...dataDetail.specifications[12].specs
           ).val[0].includes('₹')
         "
-        class="subtitle is-3"
+        class="subtitle is-3 is-size-4-mobile"
       >
         Rp
         {{
@@ -51,7 +53,7 @@
             ...dataDetail.specifications[12].specs
           ).val[0].includes('EUR')
         "
-        class="subtitle is-3"
+        class="subtitle is-3 is-size-4-mobile"
       >
         Rp
         {{
@@ -73,7 +75,7 @@
             ...dataDetail.specifications[12].specs
           ).val[0].includes('$')
         "
-        class="subtitle is-3"
+        class="subtitle is-3 is-size-4-mobile"
       >
         Rp
         {{
@@ -95,7 +97,7 @@
             ...dataDetail.specifications[12].specs
           ).val[0].includes('Rp')
         "
-        class="subtitle is-3"
+        class="subtitle is-3 is-size-4-mobile"
       >
         Rp
         {{
@@ -108,7 +110,7 @@
       </h3>
 
       <p v-else :disabled="(disabel = true)"></p>
-      <!-- <h3 class="subtitle is-3">Rp 24999000</h3> -->
+      <!-- <h3 class="subtitle is-3 is-size-4-mobile">Rp 24999000</h3> -->
     </vs-row>
 
     <!-- Btn Quantity -->

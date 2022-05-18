@@ -1,6 +1,7 @@
 <template>
   <div class="my-6">
-    <Divider><h1 class="title is-3">Brands</h1></Divider>
+    <Divider><h1 class="title is-3 is-size-4-mobile">Brands</h1></Divider>
+
     <vs-row>
       <vs-col
         v-for="(brands, index) in dataBrands.slice(0, 6)"
@@ -10,27 +11,24 @@
         vs-align="center"
         class="my-5 custom-li"
         :lg="4"
-        :sm="6"
-        :xs="12"
+        :xs="6"
       >
-        <vs-card
-          class="mx-auto"
-          style="width: 220px"
-          @click="goToHp(index, brands.brand_slug)"
+        <Card
+          style="width: 95%"
+          @click.native="goToHp(index, brands.brand_slug)"
         >
-          <template #title>
-            <h1 class="title is-3">{{ brands.brand_name }}</h1>
-          </template>
-
-          <template #text>
-            <p class="subtitle is-5">{{ brands.device_count }} Devices</p>
-          </template>
-        </vs-card>
+          <div style="text-align: center">
+            <h2 class="title is-3 is-size-5-mobile">{{ brands.brand_name }}</h2>
+            <p class="subtitle is-5 is-size-6-mobile">
+              {{ brands.device_count }} Devices
+            </p>
+          </div>
+        </Card>
       </vs-col>
     </vs-row>
     <vs-row>
-      <vs-col>
-        <vs-button class="mx-auto" to="/brands">Show More</vs-button>
+      <vs-col class="my-3">
+        <Button type="primary" to="/brands" size="large">Show More</Button>
       </vs-col>
     </vs-row>
   </div>

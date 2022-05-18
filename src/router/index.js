@@ -8,6 +8,7 @@ import LoginView from '../views/LoginView.vue'
 import RegisterView from '../views/RegisterView.vue'
 import CheckoutView from '../views/CheckoutView.vue'
 import UserView from '../views/UserView.vue'
+import PurchaseHistory from '../views/PurchaseHistory.vue'
 import LatestHpView from '../views/LatestHpView.vue'
 import ListBrandsView from '../views/ListBrandsView.vue'
 import SearchView from '../views/SearchView.vue'
@@ -62,6 +63,12 @@ const routes = [
     path: '/user',
     name: 'user',
     component: UserView
+  },
+ 
+  {
+    path: '/purchase-history',
+    name: 'purchase-history',
+    component: PurchaseHistory
   },
  
   {

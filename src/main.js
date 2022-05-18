@@ -18,7 +18,8 @@ Vue.use(Buefy)
 
 import iView from 'iview';
 import 'iview/dist/styles/iview.css';
-Vue.use(iView);
+import locale from 'iview/dist/locale/en-US';
+Vue.use(iView,{locale: locale});
 
 import Vuesax from 'vuesax'
 import 'vuesax/dist/vuesax.css' //Vuesax styles

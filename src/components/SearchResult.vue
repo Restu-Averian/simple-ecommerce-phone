@@ -13,22 +13,21 @@
         vs-align="center"
         class="my-4 custom-li"
         :lg="3"
-        :sm="6"
-        :xs="12"
+        :xs="6"
       >
-        <vs-card style="width: 220px" class="mx-auto" @click="detail(index)">
-          <template #text>
-            <h2 class="title mt-5 is-5">{{ hp.phone_name }}</h2>
-          </template>
-          <template #img>
+        <Card style="width: 95%" @click.native="detail(index)">
+          <div style="text-align: center">
             <img
               class="my-5"
               :src="hp.image"
               :alt="`latest-${index}`"
               style="width: 100px"
             />
-          </template>
-        </vs-card>
+            <h2 class="title mt-5 is-5 is-size-6-mobile">
+              {{ hp.phone_name }}
+            </h2>
+          </div>
+        </Card>
       </vs-col>
     </vs-row>
   </div>

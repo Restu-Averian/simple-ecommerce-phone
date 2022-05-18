@@ -16,18 +16,18 @@
         <nav-in-user />
       </vs-col>
 
-      <vs-col :lg="7" :xs="12"> <account-information /></vs-col>
+      <vs-col :lg="7" :xs="12"> <purchase-history-comp /></vs-col>
     </vs-row>
   </div>
 </template>
 
 <script>
-import AccountInformation from "../components/AccountInformation.vue";
+import PurchaseHistoryComp from "../components/PurchaseHistoryComp.vue";
 import NavInUser from "../components/NavInUser.vue";
 
 export default {
   components: {
-    AccountInformation,
+    PurchaseHistoryComp,
     NavInUser,
   },
   data() {

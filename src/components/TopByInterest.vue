@@ -1,6 +1,10 @@
 <template>
   <section>
-    <Divider><h1 class="title is-3">Top by Interests and Fans</h1></Divider>
+    <Divider
+      ><h1 class="title is-3 is-size-4-mobile">
+        Top by Interests and Fans
+      </h1></Divider
+    >
     <Tabs value="name1" class="my-6">
       <TabPane label="Top by Interests" name="name1">
         <div class="has-text-left">
