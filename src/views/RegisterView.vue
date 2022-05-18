@@ -1,36 +1,46 @@
 <template>
-  <div class="container">
-    <h1>Register</h1>
-    <form class="text-start" @submit.prevent="RegisterProcess">
-      <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Username</label>
-        <input type="text" class="form-control" v-model="username" />
-      </div>
-      <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Password</label>
-        <input type="password" class="form-control" v-model="password" />
-      </div>
-      <div class="mb-2">
-        <label for="exampleInputPassword1" class="form-label"
-          >Generate Photo Profile :
-        </label>
-        <input
-          type="button"
-          class="btn btn-outline-primary"
-          value="Generate Photo Profile"
-          @click="generate"
-        />
-      </div>
-      <div class="mb-3">
-        <label for="exampleInputPassword1" class="form-label">Preview : </label>
-        <img :src="preview" alt="" />
-      </div>
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </form>
+  <Card style="width: 80%; margin: 120px auto">
+    <h1 class="title is-2 is-size-3-mobile">Register</h1>
+    <vs-row class="mt-5 mb-3">
+      <Input
+        v-model="username"
+        type="text"
+        size="large"
+        placeholder="Username"
+      />
+    </vs-row>
+    <vs-row class="mt-5 mb-3">
+      <Input
+        v-model="password"
+        type="password"
+        password
+        placeholder="Password"
+      />
+    </vs-row>
+    <div class="mb-2">
+      <label for="exampleInputPassword1" class="form-label"
+        >Generate Photo Profile :
+      </label>
+      <input
+        type="button"
+        class="btn btn-outline-primary"
+        value="Generate Photo Profile"
+        @click="generate"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="exampleInputPassword1" class="form-label">Preview : </label>
+      <img :src="preview" alt="" />
+    </div>
+    <vs-row class="mt-6 mx-auto">
+      <Button @click="RegisterProcess" type="primary">Login</Button>
+    </vs-row>
+
     <p class="small-text">
-      Have an account ? <router-link to="/login">Login here!</router-link>
+      Have an account before ?
+      <router-link to="/login">Login here!</router-link>
     </p>
-  </div>
+  </Card>
 </template>
 
 <script>
