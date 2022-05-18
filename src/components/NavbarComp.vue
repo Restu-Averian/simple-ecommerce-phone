@@ -147,7 +147,7 @@
           </template>
           Account Information
         </vs-sidebar-item>
-        <vs-sidebar-item id="twitter">
+        <vs-sidebar-item id="twitter" to="/purchase-history">
           <template #icon>
             <i class="bx bxl-twitter"></i>
           </template>
