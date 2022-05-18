@@ -1,6 +1,11 @@
 <template>
   <section class="my-5">
-    <vs-row v-for="(cart, index) in dataCart" :key="index" class="mb-3">
+    <vs-row
+      v-for="(cart, index) in dataCart"
+      @click.native="detail(index)"
+      :key="index"
+      class="mb-3"
+    >
       <vs-col w="3">
         <img :src="cart.image" alt="" />
       </vs-col>
@@ -17,7 +22,7 @@
               <template #prepend>
                 <Button
                   icon="md-remove"
-                  @click.native="decrement(index)"
+                  @click.native="decrement(index, 'top-center', 'danger', 2000)"
                 ></Button>
               </template>
               <template #append>
@@ -134,9 +139,16 @@ export default {
   },
 
   methods: {
-    decrement(index) {
+    decrement(index, position = null, color, duration) {
       if (this.dataCart[index].quantity === 1) {
-        alert("Ga bisa");
+        this.$vs.notification({
+          color,
+          duration,
+          progress: "auto",
+          position,
+          title: "Tidak bisa 0",
+          text: "Quantity yang dimasukkan tidak bisa lebih kecil dari 1",
+        });
       } else {
         let qty = (this.dataCart[index].quantity -= 1);
         console.log("Quantity dikurangi : ", qty);
