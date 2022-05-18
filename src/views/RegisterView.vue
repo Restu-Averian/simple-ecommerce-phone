@@ -18,15 +18,9 @@
       />
     </vs-row>
     <div class="mb-2">
-      <label for="exampleInputPassword1" class="form-label"
-        >Generate Photo Profile :
-      </label>
-      <input
-        type="button"
-        class="btn btn-outline-primary"
-        value="Generate Photo Profile"
-        @click="generate"
-      />
+      <Button @click.native="generate" type="primary" ghost
+        >Generate Photo Profile</Button
+      >
     </div>
     <div class="mb-3">
       <label for="exampleInputPassword1" class="form-label">Preview : </label>
