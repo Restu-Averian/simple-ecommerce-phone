@@ -7,7 +7,7 @@
     :radius-dot="setting.radiusDot"
     :trigger="setting.trigger"
     :arrow="setting.arrow"
-    class="my-6"
+    style="margin: 120px 0"
   >
     <CarouselItem v-for="(url, index) in imgCarousels" :key="index">
       <div class="demo-carousel">

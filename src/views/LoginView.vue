@@ -37,6 +37,12 @@ const LOGIN_PROCESS = gql(
     password
     photo_profile
     userName
+    no_hp
+    provinsi
+    kota
+    kecamatan
+    kelurahan
+    isLogin
   }
 }
 
@@ -127,6 +133,10 @@ export default {
           username: hasilQuery.data.users[0].userName,
           photo_profile: hasilQuery.data.users[0].photo_profile,
           login: HasilChangeStatus.data.update_users.returning[0].isLogin,
+          provinsi: hasilQuery.data.users[0].provinsi,
+          kota: hasilQuery.data.users[0].kota,
+          kecamatan: hasilQuery.data.users[0].kecamatan,
+          kelurahan: hasilQuery.data.users[0].kelurahan,
         });
         alert("Berhasil Login");
         this.$router.push("/");

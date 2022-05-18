@@ -16,8 +16,12 @@
         <phone-name-detail />
       </vs-col>
     </vs-row>
-    <vs-row class="my-5">
-      <Divider><h1 class="title is-3">Deskripsi dan Review</h1></Divider>
+    <vs-row class="mt-5 mb-3">
+      <Divider
+        ><h1 class="title is-3 is-size-4-mobile">
+          Deskripsi dan Review
+        </h1></Divider
+      >
     </vs-row>
     <Tabs>
       <TabPane label="Deskripsi">

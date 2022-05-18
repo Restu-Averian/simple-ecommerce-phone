@@ -1,20 +1,27 @@
 <template>
   <section class="my-6">
-    <div class="field">
-      <p class="control has-icons-left has-icons-right">
-        <input
-          class="input is-info"
-          type="text"
-          placeholder="Username"
-          readonly
-          v-model="namaOrang"
-        />
-        <span class="icon is-small is-left">
-          <i class="bx bx-user"></i>
-        </span>
-      </p>
-    </div>
-    <div class="field">
+    <Input
+      placeholder="Username"
+      size="large"
+      readonly
+      v-model="namaOrang"
+      style="width: 100%"
+    >
+      <Icon type="ios-contact" slot="prefix" />
+    </Input>
+
+    <Input
+      v-model="komentarOrang"
+      maxlength="100"
+      show-word-limit
+      size="large"
+      class="my-4"
+      rows="5"
+      type="textarea"
+      placeholder="Masukkan Komentar"
+      style="width: 100%"
+    />
+    <!-- <div class="field">
       <p class="control has-icons-left has-icons-right">
         <textarea
           class="textarea is-info"
@@ -26,9 +33,14 @@
           <i class="bx bx-comment"></i>
         </span>
       </p>
-    </div>
+    </div> -->
     <vs-row class="my-5 has-text-centered">
-      <vs-button @click="AddComment">Add Comment</vs-button>
+      <Button
+        size="large"
+        @click="AddComment('top-center', 'danger', 2000)"
+        type="primary"
+        >Add Comment</Button
+      >
     </vs-row>
 
     <vs-row
@@ -93,33 +105,6 @@ export default {
       namaOrang: "",
       komentarOrang: "",
       AllComment: [],
-      tes: "",
-      formInline: {
-        user: "",
-        password: "",
-      },
-      ruleInline: {
-        user: [
-          {
-            required: true,
-            message: "Please fill in the user name",
-            trigger: "blur",
-          },
-        ],
-        password: [
-          {
-            required: true,
-            message: "Please fill in the password.",
-            trigger: "blur",
-          },
-          {
-            type: "string",
-            min: 6,
-            message: "The password length cannot be less than 6 bits",
-            trigger: "blur",
-          },
-        ],
-      },
     };
   },
   apollo: {
@@ -151,23 +136,34 @@ export default {
       let user = JSON.parse(localStorage.getItem("dataHp"));
       this.namaOrang = user.dataHp.UserLogin.username;
     },
-    async AddComment() {
+    async AddComment(position = null, color, duration) {
       let users = JSON.parse(localStorage.getItem("dataHp"));
       if (users) {
-        let a = await this.$apollo.mutate({
-          mutation: ADD_COMMENT,
-          variables: {
-            object: {
-              photo_profile: users.dataHp.UserLogin.photo_profile,
-              id_user: users.dataHp.UserLogin.id,
-              komentarUser: this.komentarOrang,
-              phoneName: this.$route.params.detail,
-              userName: this.namaOrang,
+        if (this.komentarOrang == "") {
+          this.$vs.notification({
+            color,
+            duration,
+            progress: "auto",
+            position,
+            title: "Komentar Kosong",
+            text: "Mohon diisi dulu inputannya agar dapat memberikan komentar",
+          });
+        } else {
+          let a = await this.$apollo.mutate({
+            mutation: ADD_COMMENT,
+            variables: {
+              object: {
+                photo_profile: users.dataHp.UserLogin.photo_profile,
+                id_user: users.dataHp.UserLogin.id,
+                komentarUser: this.komentarOrang,
+                phoneName: this.$route.params.detail,
+                userName: this.namaOrang,
+              },
             },
-          },
-        });
-        console.log("hasil mutate", a);
-        this.komentarOrang = "";
+          });
+          console.log("hasil mutate", a);
+          this.komentarOrang = "";
+        }
       } else {
         alert("Login terlebih dahulu");
         this.$router.push("/login");

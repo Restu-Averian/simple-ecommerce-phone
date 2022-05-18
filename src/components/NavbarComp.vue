@@ -6,31 +6,36 @@
       padding-scroll
       hideScroll
       v-model="active"
+      rightCollapsed
       shadowScroll
       class="px-3"
     >
       <template #left>
-        <vs-button @click="activeSidebar = !activeSidebar" flat icon>
-          <i class="bx bx-menu"></i>
-        </vs-button>
+        <Button
+          type="primary"
+          class="mr-3"
+          ghost
+          @click="activeSidebar = !activeSidebar"
+          icon="ios-menu"
+          shape="circle"
+        ></Button>
       </template>
       <template>
-        <div class="field">
-          <p class="control has-icons-left has-icons-right">
-            <input
-              class="input is-info"
-              type="search"
-              v-model="search"
-              @keydown.enter="searchProduct('top-center', 'danger', 2000)"
-              placeholder="Search by product name..."
-              @click-icon="searchProduct('top-center', 'danger', 2000)"
-            />
-
-            <span class="icon is-small is-right">
-              <i class="bx bx-search-alt-2"></i>
-            </span>
-          </p>
-        </div>
+        <Input
+          placeholder="Search Product..."
+          style="width: auto"
+          size="large"
+          class="mr-3"
+          v-model="search"
+          @keyup.native.enter="searchProduct('top-center', 'danger', 2000)"
+        >
+          <Button
+            type="primary"
+            slot="append"
+            icon="ios-search"
+            @click.native="searchProduct('top-center', 'danger', 2000)"
+          ></Button>
+        </Input>
       </template>
       <template #right v-if="DataUser.login">
         <vs-avatar
@@ -109,12 +114,9 @@
       </b-navbar-item> -->
       </template>
       <template #right v-else>
-        <vs-button
-          @click="goTo('/login', 1)"
-          style="padding: 2px 6px; font-size: 18px"
+        <Button type="primary" @click="goTo('/login', 1)" size="large"
+          >Login</Button
         >
-          Login
-        </vs-button>
       </template>
     </vs-navbar>
 

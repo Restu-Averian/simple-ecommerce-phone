@@ -1,6 +1,6 @@
 <template>
   <div class="my-6 center">
-    <Divider><h1 class="title is-3">Latests</h1></Divider>
+    <Divider><h1 class="title is-3 is-size-4-mobile">Latests</h1></Divider>
 
     <vs-row>
       <vs-col
@@ -11,25 +11,28 @@
         vs-align="center"
         class="my-4 custom-li"
         :lg="3"
-        :sm="6"
-        :xs="12"
+        :xs="6"
       >
-        <vs-card style="width: 220px" class="mx-auto" @click="detail(index)">
-          <template #text>
-            <h2 class="title mt-5 is-5">{{ latests.phone_name }}</h2>
-          </template>
-          <template #img>
+        <Card style="width: 95%" @click.native="detail(index)">
+          <div style="text-align: center">
             <img
               class="my-5"
               :src="latests.image"
               :alt="`latest-${index}`"
               style="width: 100px"
             />
-          </template>
-        </vs-card>
+            <h2 class="title mt-5 is-5 is-size-6-mobile">
+              {{ latests.phone_name }}
+            </h2>
+          </div>
+        </Card>
       </vs-col>
     </vs-row>
-    <vs-button class="mx-auto" @click="goTo('/latest')">Show More</vs-button>
+    <vs-row>
+      <vs-col class="my-3">
+        <Button type="primary" to="/Latest" size="large">Show More</Button>
+      </vs-col>
+    </vs-row>
   </div>
 </template>
 
