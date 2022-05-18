@@ -33,7 +33,7 @@
       <img :src="preview" alt="" />
     </div>
     <vs-row class="mt-6 mx-auto">
-      <Button @click="RegisterProcess" type="primary">Login</Button>
+      <Button @click="RegisterProcess" type="primary">Register</Button>
     </vs-row>
 
     <p class="small-text">
