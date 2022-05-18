@@ -114,15 +114,20 @@
     </vs-row>
 
     <!-- Btn Quantity -->
-    <vs-row style="margin-left: -20px">
-      <vs-button @click="decrement" style="position: relative; left: 20px"
-        >-</vs-button
-      >
-      <vs-input v-model="quantity" type="number" readonly />
-      <vs-button @click="increment" style="position: relative; right: 20px"
-        >+</vs-button
-      >
-    </vs-row>
+    <Input v-model="quantity" class="has-text-centred">
+      <template #prepend>
+        <Button
+          icon="md-remove"
+          @click.native="decrement('top-center', 'danger', 2000)"
+        ></Button>
+      </template>
+      <template #append>
+        <Button
+          icon="md-add"
+          @click.native="increment('top-center', 'danger', 2000)"
+        ></Button>
+      </template>
+    </Input>
 
     <!-- Btn Cart -->
     <vs-row class="my-5" vs-type="flex" vs-justify="center">
@@ -272,15 +277,30 @@ export default {
         this.$router.push("/login");
       }
     },
-    decrement() {
+    decrement(position = null, color, duration) {
       if (this.quantity <= 1) {
-        alert("Tidak bisa 0");
+        this.$vs.notification({
+          color,
+          duration,
+          progress: "auto",
+          position,
+          title: "Tidak bisa 0",
+          text: "Quantity yang dimasukkan tidak bisa lebih kecil dari 1",
+        });
       } else {
         this.quantity -= 1;
       }
     },
-    increment() {
+    increment(position = null, color, duration) {
       if (this.quantity >= 90) {
+        this.$vs.notification({
+          color,
+          duration,
+          progress: "auto",
+          position,
+          title: "Melebihi Stock",
+          text: "Maaf quantity yang kamu masukkan melebihi stock",
+        });
         alert("Melebihi stock");
       } else {
         this.quantity += 1;

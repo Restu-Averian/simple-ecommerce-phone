@@ -38,15 +38,15 @@
         </Input>
       </template>
       <template #right v-if="DataUser.login">
-        <vs-avatar
-          badge-color="danger"
-          @click="goTo('/cart')"
-          badge-position="top-right"
-          class="mr-3"
-        >
-          <i class="bx bx-cart"></i>
-          <template #badge> {{ dataCart }} </template>
-        </vs-avatar>
+        <Button
+          size="large"
+          icon="ios-cart-outline"
+          type="primary"
+          shape="circle"
+          @click.native="goTo('/cart')"
+          ghost
+        ></Button>
+
         <Dropdown trigger="click">
           <vs-avatar>
             <img :src="DataUser.photo_profile" alt="" />
@@ -119,8 +119,19 @@
         >
       </template>
     </vs-navbar>
-
-    <vs-sidebar v-model="active" :open.sync="activeSidebar">
+    <vs-sidebar
+      v-model="active"
+      :open.sync="activeSidebar"
+      v-if="DataUser === ''"
+    >
+      <vs-sidebar-item id="home" v-model="active" to="/login">
+        <template #icon>
+          <i class="bx bx-user"></i>
+        </template>
+        Login
+      </vs-sidebar-item>
+    </vs-sidebar>
+    <vs-sidebar v-model="active" :open.sync="activeSidebar" v-else>
       <template #logo>
         <!-- ...img logo -->
       </template>
@@ -143,20 +154,21 @@
 
         <vs-sidebar-item id="Account" to="/user" v-model="active">
           <template #icon>
-            <i class="bx bxl-instagram"></i>
+            <i class="bx bx-user"></i>
           </template>
           Account Information
         </vs-sidebar-item>
         <vs-sidebar-item id="twitter" to="/purchase-history">
           <template #icon>
-            <i class="bx bxl-twitter"></i>
+            <i class="bx bx-history"></i>
           </template>
           Purchase History
         </vs-sidebar-item>
       </vs-sidebar-group>
 
       <template #footer>
-        <vs-row justify="space-between">
+        <Button type="error" @click.native="LogOut" long ghost>Log Out</Button>
+        <!-- <vs-row justify="space-between">
           <vs-avatar>
             <img :src="DataUser.photo_profile" alt="" />
           </vs-avatar>
@@ -170,38 +182,19 @@
 
             <template #badge> {{ dataCart }} </template>
           </vs-avatar>
-        </vs-row>
+        </vs-row> -->
       </template>
     </vs-sidebar>
   </div>
 </template>
 
 <script>
-// import gql from "graphql-tag";
 import axios from "axios";
 
-// const GET_CART = gql(
-//   `
-// subscription MySubscription($_eq: Int!) {
-//   cart(where: {id_userName: {_eq: $_eq}, user: {isLogin: {_eq: true}}}) {
-//     IsCheckout
-//     id
-//     id_userName
-//     image
-//     phone_name
-//     price
-//     phone_slug
-//     quantity
-//   }
-// }
-
-//   `
-// );
 export default {
   data() {
     return {
       dataLogin: "",
-      LoginOrNot: false,
       active: "",
       search: "",
       dataSearch: [],

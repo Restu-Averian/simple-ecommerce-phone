@@ -1,25 +1,28 @@
 <template>
-  <Card style="width: 320px" class="mx-auto my-5">
-    <h1>Login</h1>
+  <Card style="width: 80%; margin: 120px auto">
+    <h1 class="title is-2 is-size-3-mobile">Login</h1>
+    <vs-row class="mt-5 mb-3">
+      <Input
+        v-model="username"
+        type="text"
+        size="large"
+        placeholder="Username"
+      />
+    </vs-row>
+    <vs-row class="mt-5 mb-3">
+      <Input
+        v-model="password"
+        type="password"
+        password
+        placeholder="Password"
+      />
+    </vs-row>
+    <vs-row class="mt-6 mx-auto">
+      <Button @click="LoginProcess('top-center', color, 2000)" type="primary"
+        >Login</Button
+      >
+    </vs-row>
 
-    <form class="has-text-centered my-5" @submit.prevent="LoginProcess">
-      <div class="mb-3">
-        <vs-input v-model="username" type="text" placeholder="Username">
-          <template #icon>
-            <i class="bx bx-user"></i>
-          </template>
-        </vs-input>
-      </div>
-      <div class="mb-3">
-        <vs-input type="password" v-model="password" placeholder="Password">
-          <template #icon>
-            <i class="bx bx-lock-open-alt"></i>
-          </template>
-        </vs-input>
-      </div>
-      <vs-button flat type="submit" class="mx-auto my-5">Login</vs-button>
-      <!-- <button type="submit" class="btn btn-primary">Login</button> -->
-    </form>
     <p class="small-text">
       Haven't an account before ?
       <router-link to="/register">Register here!</router-link>
@@ -100,7 +103,7 @@ export default {
     },
   },
   methods: {
-    async LoginProcess() {
+    async LoginProcess(position = null, color, duration) {
       let hasilQuery = await this.$apollo.query({
         query: LOGIN_PROCESS,
         variables: {
@@ -116,7 +119,14 @@ export default {
         },
       });
       if (hasilQuery.data.users.length == 0) {
-        alert("Data tidak ditemukan");
+        this.$vs.notification({
+          color: "danger",
+          duration,
+          progress: "auto",
+          position,
+          title: "Data tidak ditemukan",
+          text: "Maaf, data tidak ditemukan, mohon dicek lagi inputannya agar dapat melakukan login",
+        });
       } else {
         let HasilChangeStatus = await this.$apollo.mutate({
           mutation: CHANGE_ISLOGIN_STATUS,
@@ -138,7 +148,14 @@ export default {
           kecamatan: hasilQuery.data.users[0].kecamatan,
           kelurahan: hasilQuery.data.users[0].kelurahan,
         });
-        alert("Berhasil Login");
+        this.$vs.notification({
+          color: "success",
+          duration,
+          progress: "auto",
+          position,
+          title: "Berhasil Login",
+          text: "Silahkan dinikmati fitur yang tersedia !",
+        });
         this.$router.push("/");
       }
       console.log("hasilLoginQuery: ", hasilQuery);
