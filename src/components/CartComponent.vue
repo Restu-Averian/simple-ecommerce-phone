@@ -1,61 +1,98 @@
 <template>
   <section class="my-5">
-    <vs-row v-for="(cart, index) in dataCart" :key="index" class="mb-3">
-      <vs-col w="3">
-        <img :src="cart.image" alt="" />
-      </vs-col>
-      <vs-col w="6" class="has-text-left">
-        <vs-row @click.native="detail(index)" class="productName">
-          <vs-col w="12">
-            <h3 class="title is-3">{{ cart.phone_name }}</h3>
-          </vs-col>
-        </vs-row>
+    <template v-if="countCart === 0">
+      <vs-row>
+        <vs-col w="12">
+          <img
+            src="../assets/undraw_empty_cart_co35.svg"
+            alt=""
+            width="208px"
+          />
+        </vs-col>
+      </vs-row>
+      <vs-row class="my-5">
+        <vs-col w="12">
+          <h4 class="title is-3 is-size-4-mobile">Cart Kosong</h4>
+          <h4 class="subtitle is-6 has-text-grey-light is-size-7-mobile">
+            Yuk mulai berbelanja bisa dengan klik tombol di bawah
+          </h4>
+        </vs-col>
+      </vs-row>
+    </template>
+    <template v-else-if="countCart !== 0">
+      <vs-row v-for="(cart, index) in dataCart" :key="index" class="mb-3">
+        <vs-col w="3">
+          <img :src="cart.image" alt="" />
+        </vs-col>
+        <vs-col w="6" class="has-text-left">
+          <vs-row @click.native="detail(index)" class="productName">
+            <vs-col w="12">
+              <h3 class="title is-3">{{ cart.phone_name }}</h3>
+            </vs-col>
+          </vs-row>
 
-        <vs-row>
-          <vs-col w="6">
-            <Input v-model="cart.quantity" class="has-text-centred">
-              <template #prepend>
-                <Button
-                  icon="md-remove"
-                  @click.native="decrement(index, 'top-center', 'danger', 2000)"
-                ></Button>
-              </template>
-              <template #append>
-                <Button icon="md-add" @click.native="increment(index)"></Button>
-              </template>
-            </Input>
-          </vs-col>
-        </vs-row>
-      </vs-col>
-      <vs-col w="3">
-        <vs-row>
-          <vs-col w="12">
-            <h4 class="title is-4">
-              Rp {{ (totalPrice[index] = cart.price * cart.quantity) }}
-            </h4>
-            <Button @click.native="ChangePrice(index)">Change Price</Button>
-          </vs-col>
-          <vs-col w="12">
-            <Button
-              size="large"
-              type="error"
-              @click.native="deleteCart(cart.id)"
-              icon="ios-trash-outline"
-              ghost
-            ></Button>
-          </vs-col>
-        </vs-row>
-      </vs-col>
-    </vs-row>
-    <Button type="primary" @click.native="ProceedToCheckout"
-      >Add Checkout</Button
-    >
+          <vs-row>
+            <vs-col w="6">
+              <Input v-model="cart.quantity" class="has-text-centred">
+                <template #prepend>
+                  <Button
+                    icon="md-remove"
+                    @click.native="
+                      decrement(index, 'top-center', 'danger', 2000)
+                    "
+                  ></Button>
+                </template>
+                <template #append>
+                  <Button
+                    icon="md-add"
+                    @click.native="increment(index)"
+                  ></Button>
+                </template>
+              </Input>
+            </vs-col>
+          </vs-row>
+        </vs-col>
+        <vs-col w="3">
+          <vs-row>
+            <vs-col w="12">
+              <h4 class="title is-4">
+                Rp {{ (totalPrice[index] = cart.price * cart.quantity) }}
+              </h4>
+              <Button @click.native="ChangePrice(index)">Change Price</Button>
+            </vs-col>
+            <vs-col w="12">
+              <Button
+                size="large"
+                type="error"
+                @click.native="deleteCart(cart.id)"
+                icon="ios-trash-outline"
+                ghost
+              ></Button>
+            </vs-col>
+          </vs-row>
+        </vs-col>
+      </vs-row>
+      <Button type="primary" @click.native="ProceedToCheckout"
+        >Add Checkout</Button
+      >
+    </template>
   </section>
 </template>
 
 <script>
 import gql from "graphql-tag";
+const Count_Cart_Data = gql(
+  `
+  query MyQuery($_eq: Int!) {
+  cart_aggregate(where: {id_userName: {_eq: $_eq}}) {
+    aggregate {
+      count
+    }
+  }
+}
 
+  `
+);
 const SubscriptionCart = gql(
   `
   subscription MySubscription($_eq: Int!) {
@@ -110,6 +147,7 @@ export default {
     return {
       dataCart: [],
       totalPrice: [],
+      countCart: "",
     };
   },
   computed: {
@@ -134,6 +172,15 @@ export default {
   },
 
   methods: {
+    async CountCart() {
+      let hasil = await this.$apollo.query({
+        query: Count_Cart_Data,
+        variables: {
+          _eq: this.dataUser.id,
+        },
+      });
+      this.countCart = hasil.data.cart_aggregate.aggregate.count;
+    },
     decrement(index, position = null, color, duration) {
       if (this.dataCart[index].quantity === 1) {
         this.$vs.notification({
@@ -191,6 +238,13 @@ export default {
         });
       }
     },
+  },
+  mounted() {
+    this.CountCart();
+    let user = localStorage.getItem("daaHp");
+    if (!user) {
+      this.$router.push("/login");
+    }
   },
 };
 </script>

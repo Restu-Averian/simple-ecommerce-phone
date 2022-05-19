@@ -38,12 +38,14 @@
 
 <script>
 import gql from "graphql-tag";
-const GET_CHECKOUT_DATA = gql(
+const SUBSCRIBE_CHECKOUT_DATA = gql(
   `
-  query MyQuery($_eq: Int!) {
-  checkout(where: {id_user: {_eq: $_eq}}, order_by: {id: desc}) {
+ subscription MySubscription($_eq: Int!) {
+  checkout(where: {id_user: {_eq: $_eq}}) {
     TotalPrice
     ekspedisi
+    id
+    id_user
     kecamatan
     kelurahan
     kota
@@ -55,6 +57,7 @@ const GET_CHECKOUT_DATA = gql(
     status
   }
 }
+
 
   `
 );
@@ -72,20 +75,24 @@ export default {
       return this.$store.state.dataHp.UserLogin;
     },
   },
-  methods: {
-    async fetchDataCheckout() {
-      let hasil = await this.$apollo.query({
-        query: GET_CHECKOUT_DATA,
-        variables: {
-          _eq: this.dataUser.id,
+  apollo: {
+    $subscribe: {
+      dataCheckout: {
+        query: SUBSCRIBE_CHECKOUT_DATA,
+        variables() {
+          return {
+            _eq: this.dataUser.id,
+          };
         },
-      });
-      this.dataCheckout = hasil.data.checkout;
-      console.log("Data Checkout : ", this.dataCheckout);
+        result({ data }) {
+          console.log("Data Checkout : ", this.dataCheckout);
+          this.dataCheckout = data.checkout;
+        },
+      },
     },
   },
+  methods: {},
   async mounted() {
-    await this.fetchDataCheckout();
     let User = JSON.parse(localStorage.getItem("dataHp"));
     if (!User) {
       this.$router.push("/login");
