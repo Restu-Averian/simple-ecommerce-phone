@@ -1,10 +1,12 @@
 <template>
-  <div class="container">
-    <carousel-comp />
-    <list-brands />
-    <latest-hp />
-    <top-by-interest />
-  </div>
+  <section>
+    <div class="container">
+      <carousel-comp style="width: 90%" class="mx-auto" />
+      <list-brands />
+      <latest-hp />
+      <top-by-interest />
+    </div>
+  </section>
 </template>
 
 <script>

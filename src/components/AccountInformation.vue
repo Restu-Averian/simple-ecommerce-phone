@@ -281,7 +281,7 @@ export default {
     },
     fetchListProvinsi() {
       axios
-        .get("http://dev.farizdotid.com/api/daerahindonesia/provinsi")
+        .get("https://dev.farizdotid.com/api/daerahindonesia/provinsi")
         .then((response) => {
           this.listProvinsi = response.data.provinsi;
           this.namaProvinsi = response.data.provinsi.map((result) => {

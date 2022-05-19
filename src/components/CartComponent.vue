@@ -1,16 +1,11 @@
 <template>
   <section class="my-5">
-    <vs-row
-      v-for="(cart, index) in dataCart"
-      @click.native="detail(index)"
-      :key="index"
-      class="mb-3"
-    >
+    <vs-row v-for="(cart, index) in dataCart" :key="index" class="mb-3">
       <vs-col w="3">
         <img :src="cart.image" alt="" />
       </vs-col>
       <vs-col w="6" class="has-text-left">
-        <vs-row>
+        <vs-row @click.native="detail(index)" class="productName">
           <vs-col w="12">
             <h3 class="title is-3">{{ cart.phone_name }}</h3>
           </vs-col>
@@ -201,4 +196,7 @@ export default {
 </script>
 
 <style scoped>
+.productName {
+  cursor: pointer;
+}
 </style>

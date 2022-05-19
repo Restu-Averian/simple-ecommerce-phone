@@ -1,5 +1,5 @@
 <template>
-  <div class="my-6">
+  <section>
     <Divider><h1 class="title is-3 is-size-4-mobile">Brands</h1></Divider>
 
     <vs-row>
@@ -31,7 +31,7 @@
         <Button type="primary" to="/brands" size="large">Show More</Button>
       </vs-col>
     </vs-row>
-  </div>
+  </section>
 </template>
 
 <script>
