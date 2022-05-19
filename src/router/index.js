@@ -12,6 +12,7 @@ import PurchaseHistory from '../views/PurchaseHistory.vue'
 import LatestHpView from '../views/LatestHpView.vue'
 import ListBrandsView from '../views/ListBrandsView.vue'
 import SearchView from '../views/SearchView.vue'
+import PageNotFound from '../views/PageNotFound.vue'
 
 Vue.use(VueRouter)
 
@@ -87,6 +88,11 @@ const routes = [
     path: '/search/:search',
     name: 'search',
     component: SearchView
+  },
+  {
+    path: '*',
+    name: 'Not Found',
+    component: PageNotFound
   },
  
  

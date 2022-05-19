@@ -1,7 +1,7 @@
 <template>
   <div class="container" style="margin: 120px auto">
     <h1>Checkout</h1>
-    {{ dataUser.id }}
+    {{ dataCheckout }}
     <!-- Data Pengiriman -->
     <vs-row>
       <vs-col w="6">
@@ -27,12 +27,7 @@
           </vs-col>
         </vs-row>
         <vs-row class="mt-5 mb-3">
-          <Input
-            v-model="noHp"
-            size="large"
-            :disabled="isEdit"
-            placeholder="No. Handphone"
-          />
+          <Input v-model="noHp" size="large" placeholder="No. Handphone" />
         </vs-row>
         <vs-row class="mt-5 mb-3">
           <Select
@@ -124,28 +119,7 @@
             placeholder="large size"
           />
         </vs-row>
-        <div class="mb-4">
-          <div
-            class="form-check"
-            v-for="(jasaKirim, index) in jasKir"
-            :key="index"
-          >
-            <input
-              class="form-check-input"
-              type="radio"
-              name="flexRadioDefault"
-              v-model="jasKirChoosed"
-              :value="jasaKirim.jenis"
-              :id="index"
-              required
-              @click="ChooseJasKir(jasaKirim)"
-            />
-            <label class="form-check-label" :for="index">
-              <h4>{{ jasaKirim.jenis }}</h4>
-              <p>Rp {{ jasaKirim.ongkir }}</p>
-            </label>
-          </div>
-        </div>
+
         <vs-row class="mt-6">
           <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
             <Button
@@ -211,29 +185,39 @@
         </div>
       </vs-col>
     </vs-row>
+    <vs-row>
+      <vs-col w="6">
+        <div class="mb-4">
+          <div
+            class="form-check"
+            v-for="(jasaKirim, index) in jasKir"
+            :key="index"
+          >
+            <input
+              class="form-check-input"
+              type="radio"
+              name="flexRadioDefault"
+              v-model="jasKirChoosed"
+              :value="jasaKirim.jenis"
+              :id="index"
+              required
+              @click="ChooseJasKir(jasaKirim)"
+            />
+            <label class="form-check-label" :for="index">
+              <h4>{{ jasaKirim.jenis }}</h4>
+              <p>Rp {{ jasaKirim.ongkir }}</p>
+            </label>
+          </div>
+        </div>
+      </vs-col>
+    </vs-row>
     <Button type="primary" @click.native="Proceed">Pay It</Button>
   </div>
 </template>
 
 <script>
-import axios from "axios";
 import gql from "graphql-tag";
-
-const JumlahPrice = gql(
-  `
-query MyQuery($_eq: Int!) {
-  cart_aggregate(where: {id_userName: {_eq: $_eq}}) {
-    aggregate {
-      sum {
-        price
-      }
-    }
-  }
-}
-
-
-  `
-);
+import axios from "axios";
 const GET_USER_DATA = gql(
   `
     query MyQuery($_eq: Int!) {
@@ -252,6 +236,22 @@ const GET_USER_DATA = gql(
 
     `
 );
+const JumlahPrice = gql(
+  `
+query MyQuery($_eq: Int!) {
+  cart_aggregate(where: {id_userName: {_eq: $_eq}}) {
+    aggregate {
+      sum {
+        price
+      }
+    }
+  }
+}
+
+
+  `
+);
+
 const hapusBarang = gql(
   `
 mutation MyMutation($_eq: Int!) {
@@ -317,7 +317,27 @@ const SubscriptionCart = gql(
 
   `
 );
+const Update_Data_User = gql(
+  `
+  mutation MyMutation($kecamatan: String!, $kelurahan: String!, $kota: String!, $no_hp: String!, $provinsi: String = "", $_eq: Int!) {
+  update_users(where: {id: {_eq: $_eq}}, _set: {kecamatan: $kecamatan, kelurahan: $kelurahan, kota: $kota, no_hp: $no_hp, provinsi: $provinsi}) {
+    returning {
+      id
+      isLogin
+      kecamatan
+      kelurahan
+      kota
+      no_hp
+      password
+      photo_profile
+      provinsi
+      userName
+    }
+  }
+}
 
+  `
+);
 export default {
   data() {
     return {
@@ -377,7 +397,6 @@ export default {
       },
     },
   },
-
   computed: {
     dataUser() {
       return this.$store.state.dataHp.UserLogin;
@@ -414,70 +433,6 @@ export default {
       this.isEdit = true;
       this.fetchDataUser();
     },
-    async Proceed() {
-      let DataPhoneName = this.dataCheckout.map((checkout) => {
-        return checkout.phone_name;
-      });
-      console.log(
-        "Phone Name yang disimpan : ",
-        this.dataCheckout.map((checkout) => {
-          return checkout.phone_name;
-        })
-      );
-      alert("Pembelian Berhasil");
-      this.$apollo.mutate({
-        mutation: Save_Checkout_Data,
-        variables: {
-          objects: {
-            ekspedisi: this.jasKirChoosed,
-            id_user: this.dataUser.id,
-            kecamatan: this.kecamatan,
-            kelurahan: this.kelurahan,
-            kota: this.city,
-            namaUser: this.dataUser.username,
-            no_hp: this.noHp,
-            ongkir: this.ongkirChoosed,
-            provinsi: this.province,
-            nama_product: DataPhoneName.toString(),
-            TotalPrice: this.totPrice,
-          },
-        },
-      });
-      let hasil = await this.$apollo.mutate({
-        mutation: hapusBarang,
-        variables: {
-          _eq: this.dataUser.id,
-        },
-      });
-      console.log("Hasil : ", hasil);
-      this.$router.push("/home");
-    },
-    async JumalahPrice() {
-      let hasilHarga = await this.$apollo.query({
-        query: JumlahPrice,
-        variables: {
-          _eq: this.dataUser.id,
-        },
-      });
-      console.log(
-        "Jumlah harga : ",
-        hasilHarga.data.cart_aggregate.aggregate.sum.price
-      );
-      this.price = hasilHarga.data.cart_aggregate.aggregate.sum.price;
-    },
-    TotalPrice() {
-      this.totPrice = this.price + this.ongkirChoosed;
-      console.log("Total Price : ", this.totPrice);
-    },
-
-    // },
-    ChooseJasKir(jaskir) {
-      console.log("ongkir : ", jaskir);
-      this.ongkirChoosed = jaskir.ongkir;
-      this.jasKirChoosed = jaskir.jenis;
-      console.log("JaskirChoosed : ", this.jasKirChoosed);
-    },
-
     fetchListProvinsi() {
       axios
         .get("https://dev.farizdotid.com/api/daerahindonesia/provinsi")
@@ -573,6 +528,80 @@ export default {
         console.log(hasilFilterKecamatan);
         this.fetchListKelurahan(hasilFilterKecamatan[0].id);
       }
+    },
+    async Proceed() {
+      let DataPhoneName = this.dataCheckout.map((checkout) => {
+        return checkout.phone_name;
+      });
+      console.log("Phone Name yang disimpan : ", DataPhoneName);
+      let tanya = confirm("Apakah mau update data ?");
+      if (tanya) {
+        let hasilUpdate = await this.$apollo.mutate({
+          mutation: Update_Data_User,
+          variables: {
+            kecamatan: this.kecamatan,
+            kelurahan: this.kelurahan,
+            kota: this.city,
+            no_hp: this.noHp,
+            provinsi: this.province,
+            _eq: this.dataUser.id,
+          },
+        });
+        console.log("Iya, hasil mutatenya : ", hasilUpdate);
+      }
+      alert("Pembelian Berhasil");
+      let simpanCheckout = await this.$apollo.mutate({
+        mutation: Save_Checkout_Data,
+        variables: {
+          objects: {
+            ekspedisi: this.jasKirChoosed,
+            id_user: this.dataUser.id,
+            kecamatan: this.kecamatan,
+            kelurahan: this.kelurahan,
+            kota: this.city,
+            namaUser: this.dataUser.username,
+            no_hp: this.noHp,
+            ongkir: this.ongkirChoosed,
+            provinsi: this.province,
+            nama_product: DataPhoneName.toString(),
+            TotalPrice: this.totPrice,
+          },
+        },
+      });
+      let hasil = await this.$apollo.mutate({
+        mutation: hapusBarang,
+        variables: {
+          _eq: this.dataUser.id,
+        },
+      });
+      console.log("Hasil : ", hasil);
+      console.log("Hasil simpan : ", simpanCheckout);
+      this.$router.push("/home");
+    },
+    async JumalahPrice() {
+      let hasilHarga = await this.$apollo.query({
+        query: JumlahPrice,
+        variables: {
+          _eq: this.dataUser.id,
+        },
+      });
+      console.log(
+        "Jumlah harga : ",
+        hasilHarga.data.cart_aggregate.aggregate.sum.price
+      );
+      this.price = hasilHarga.data.cart_aggregate.aggregate.sum.price;
+    },
+    TotalPrice() {
+      this.totPrice = this.price + this.ongkirChoosed;
+      console.log("Total Price : ", this.totPrice);
+    },
+
+    // },
+    ChooseJasKir(jaskir) {
+      console.log("ongkir : ", jaskir);
+      this.ongkirChoosed = jaskir.ongkir;
+      this.jasKirChoosed = jaskir.jenis;
+      console.log("JaskirChoosed : ", this.jasKirChoosed);
     },
   },
 

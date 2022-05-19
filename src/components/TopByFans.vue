@@ -58,4 +58,13 @@ export default {
 </script>
 
 <style>
+.vs-table__th:nth-child(1) {
+  width: 100px;
+}
+.vs-table__tr:nth-child(1) {
+  font-size: 50px;
+}
+.vs-table table {
+  width: 10%;
+}
 </style>

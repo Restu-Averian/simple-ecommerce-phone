@@ -12,11 +12,8 @@
 
     <Input
       v-model="komentarOrang"
-      maxlength="100"
-      show-word-limit
       size="large"
       class="my-4"
-      rows="5"
       type="textarea"
       placeholder="Masukkan Komentar"
       style="width: 100%"
@@ -42,31 +39,63 @@
         >Add Comment</Button
       >
     </vs-row>
-
-    <vs-row
-      v-for="(komentar, index) in AllComment"
-      :key="index"
-      class="pt-5 mt-5"
-    >
-      <vs-col :lg="1" :sm="2" :xs="3">
-        <img :src="komentar.photo_profile" class="has-text-left" alt="" />
-      </vs-col>
-      <vs-col w="9">
-        <vs-row>
-          <h4 class="title is-4 mb-3">{{ komentar.userName }}</h4>
-        </vs-row>
-        <vs-row
-          ><h6 class="subtitle is-6 has-text-left">
-            {{ komentar.komentarUser }}
-          </h6>
-        </vs-row>
-      </vs-col>
-    </vs-row>
+    <section v-if="countComment === 0">
+      <vs-row>
+        <vs-col w="12">
+          <img
+            src="../assets/undraw_public_discussion_re_w9up.svg"
+            alt=""
+            width="208px"
+          />
+        </vs-col>
+      </vs-row>
+      <vs-row class="my-5">
+        <vs-col w="12">
+          <h4 class="title is-3 is-size-4-mobile">Belum ada Komentar</h4>
+          <h4 class="subtitle is-6 has-text-grey-light is-size-7-mobile">
+            Yuk jadi yang pertama memberikan komentar terhadap handphone ini
+          </h4>
+        </vs-col>
+      </vs-row>
+    </section>
+    <section v-else-if="countComment !== 0">
+      <vs-row
+        v-for="(komentar, index) in AllComment"
+        :key="index"
+        class="pt-5 mt-5"
+      >
+        <vs-col :lg="1" :sm="2" :xs="3">
+          <img :src="komentar.photo_profile" class="has-text-left" alt="" />
+        </vs-col>
+        <vs-col w="9">
+          <vs-row>
+            <h4 class="title is-4 mb-3">{{ komentar.userName }}</h4>
+          </vs-row>
+          <vs-row
+            ><h6 class="subtitle is-6 has-text-left">
+              {{ komentar.komentarUser }}
+            </h6>
+          </vs-row>
+        </vs-col>
+      </vs-row>
+    </section>
   </section>
 </template>
 
 <script>
 import gql from "graphql-tag";
+const COUNT_COMMENT = gql(
+  `
+  query MyQuery($_eq: String!) {
+  komentar_aggregate(where: {phoneName: {_eq: $_eq}}) {
+    aggregate {
+      count
+    }
+  }
+}
+
+  `
+);
 const ADD_COMMENT = gql(
   `
   mutation AddComment($object: komentar_insert_input = {}) {
@@ -105,6 +134,7 @@ export default {
       namaOrang: "",
       komentarOrang: "",
       AllComment: [],
+      countComment: "",
     };
   },
   apollo: {
@@ -131,6 +161,16 @@ export default {
           this.$Message.error("Fail!");
         }
       });
+    },
+    async CountCommentFunc() {
+      let hasil = await this.$apollo.query({
+        query: COUNT_COMMENT,
+        variables: {
+          _eq: this.$route.params.detail,
+        },
+      });
+      console.log("hasiil count comment : ", hasil);
+      this.countComment = hasil.data.komentar_aggregate.aggregate.count;
     },
     dataUser() {
       let user = JSON.parse(localStorage.getItem("dataHp"));
@@ -172,6 +212,7 @@ export default {
   },
   mounted() {
     this.dataUser();
+    this.CountCommentFunc();
   },
 };
 </script>

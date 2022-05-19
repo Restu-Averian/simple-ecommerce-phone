@@ -127,11 +127,9 @@ export default {
   },
   mounted() {
     let users = localStorage.getItem("dataHp");
-    if (users.length > 0) {
+    if (users) {
       //Kalau key dataHp isExist
       this.$router.push("/");
-    } else {
-      this.$router.push("/register");
     }
   },
 };

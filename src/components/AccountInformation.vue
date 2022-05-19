@@ -384,19 +384,9 @@ export default {
     this.fetchListProvinsi();
     await this.fetchDataUser();
     console.log("ada ", this.city);
-
-    console.log("data User: ", this.dataUser.UserLogin);
-    if (this.province == "") {
-      console.log("Belum ada provinsi");
-    } else if (this.province != "") {
-      console.log("ada provinsi");
-    }
-    if (this.dataUser.UserLogin.kota !== "") {
-      this.isEmptyCity = false;
-      this.city = this.dataUser.UserLogin.kota;
-      console.log("ada ", this.city);
-    } else {
-      console.log("kosong ");
+    let user = localStorage.getItem("dataHp");
+    if (!user) {
+      this.$router.push("/login");
     }
   },
 };

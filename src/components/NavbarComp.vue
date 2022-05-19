@@ -124,11 +124,23 @@
       :open.sync="activeSidebar"
       v-if="DataUser === ''"
     >
-      <vs-sidebar-item id="home" v-model="active" to="/login">
+      <vs-sidebar-item id="home" v-model="active" to="/">
         <template #icon>
-          <i class="bx bx-user"></i>
+          <i class="bx bx-home"></i>
+        </template>
+        Home
+      </vs-sidebar-item>
+      <vs-sidebar-item id="login" v-model="active" to="/login">
+        <template #icon>
+          <i class="bx bx-log-in-circle"></i>
         </template>
         Login
+      </vs-sidebar-item>
+      <vs-sidebar-item id="register" v-model="active" to="/register">
+        <template #icon>
+          <i class="bx bx-registered"></i>
+        </template>
+        Register
       </vs-sidebar-item>
     </vs-sidebar>
     <vs-sidebar v-model="active" :open.sync="activeSidebar" v-else>
@@ -140,6 +152,12 @@
           <i class="bx bx-home"></i>
         </template>
         Home
+      </vs-sidebar-item>
+      <vs-sidebar-item id="cart" v-model="active" to="/cart">
+        <template #icon>
+          <i class="bx bx-cart"></i>
+        </template>
+        Cart
       </vs-sidebar-item>
 
       <vs-sidebar-group>
@@ -167,7 +185,16 @@
       </vs-sidebar-group>
 
       <template #footer>
-        <Button type="error" @click.native="LogOut" long ghost>Log Out</Button>
+        <b-button
+          type="is-danger"
+          icon-pack="fas"
+          icon-left="sign-out"
+          outlined
+          expanded
+          @click="LogOut"
+          >Logout</b-button
+        >
+
         <!-- <vs-row justify="space-between">
           <vs-avatar>
             <img :src="DataUser.photo_profile" alt="" />
