@@ -20,11 +20,35 @@ const mutations={
    updateKelurahan(state,params){
     state.UserLogin["kelurahan"]=params
    },
+   updateUsername(state,params){
+       state.UserLogin["username"]=params
+   },
+   updatePassword(state,params){
+       state.UserLogin["password"]=params
+   },
+   updatePhotoProfile(state,params){
+       state.UserLogin["photo_profile"]=params
+   },
+   updateNoHp(state,params){
+       state.UserLogin["no_hp"]=params
+   },
   
 }
 const actions = {
     setLogin(store,params){
         store.commit("setUserLogin",params)
+    },
+    updateUsername(store,params){
+        store.commit("updateUsername",params)
+    },
+    updatePassword(store,params){
+        store.commit("updatePassword",params)
+    },
+    updateNoHp(store,params){
+        store.commit("updateNoHp",params)
+    },
+    updatePhotoProfile(store,params){
+        store.commit("updatePhotoProfile",params)
     },
     updateProvinsi(store,params){
         store.commit("updateProvinsi",params)

@@ -4,7 +4,6 @@
       fixed
       shadow
       padding-scroll
-      hideScroll
       v-model="active"
       rightCollapsed
       shadowScroll
@@ -124,23 +123,11 @@
       :open.sync="activeSidebar"
       v-if="DataUser === ''"
     >
-      <vs-sidebar-item id="home" v-model="active" to="/">
+      <vs-sidebar-item id="home" v-model="active" to="/login">
         <template #icon>
-          <i class="bx bx-home"></i>
-        </template>
-        Home
-      </vs-sidebar-item>
-      <vs-sidebar-item id="login" v-model="active" to="/login">
-        <template #icon>
-          <i class="bx bx-log-in-circle"></i>
+          <i class="bx bx-user"></i>
         </template>
         Login
-      </vs-sidebar-item>
-      <vs-sidebar-item id="register" v-model="active" to="/register">
-        <template #icon>
-          <i class="bx bx-registered"></i>
-        </template>
-        Register
       </vs-sidebar-item>
     </vs-sidebar>
     <vs-sidebar v-model="active" :open.sync="activeSidebar" v-else>
@@ -185,16 +172,7 @@
       </vs-sidebar-group>
 
       <template #footer>
-        <b-button
-          type="is-danger"
-          icon-pack="fas"
-          icon-left="sign-out"
-          outlined
-          expanded
-          @click="LogOut"
-          >Logout</b-button
-        >
-
+        <Button type="error" @click.native="LogOut" long ghost>Log Out</Button>
         <!-- <vs-row justify="space-between">
           <vs-avatar>
             <img :src="DataUser.photo_profile" alt="" />
@@ -231,6 +209,7 @@ export default {
       data1: [],
       name: "",
       selected: null,
+      modal: false,
     };
   },
 
