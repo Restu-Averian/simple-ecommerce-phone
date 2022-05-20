@@ -1,5 +1,6 @@
 <template>
   <section class="my-6">
+    {{ AllComment }}
     <Input
       placeholder="Username"
       size="large"
@@ -84,18 +85,7 @@
 
 <script>
 import gql from "graphql-tag";
-const COUNT_COMMENT = gql(
-  `
-  query MyQuery($_eq: String!) {
-  komentar_aggregate(where: {phoneName: {_eq: $_eq}}) {
-    aggregate {
-      count
-    }
-  }
-}
 
-  `
-);
 const ADD_COMMENT = gql(
   `
   mutation AddComment($object: komentar_insert_input = {}) {
@@ -106,6 +96,18 @@ const ADD_COMMENT = gql(
     userName
     photo_profile
     id_user
+  }
+}
+
+  `
+);
+const SubscribeCount = gql(
+  `
+  subscription MySubscription($_eq: String!) {
+  komentar_aggregate(where: {phoneName: {_eq: $_eq}}) {
+    aggregate {
+      count
+    }
   }
 }
 
@@ -135,6 +137,7 @@ export default {
       komentarOrang: "",
       AllComment: [],
       countComment: "",
+      isVisible: true,
     };
   },
   apollo: {
@@ -150,9 +153,26 @@ export default {
           this.AllComment = data.komentar;
         },
       },
+      countComment: {
+        query: SubscribeCount,
+        variables() {
+          return {
+            _eq: this.$route.params.detail,
+          };
+        },
+        result({ data }) {
+          this.countComment = data.komentar_aggregate.aggregate.count;
+        },
+      },
     },
   },
   methods: {
+    VisibleBtn() {
+      // let namaKomentator = this.AllComment.map((result) => {
+      //   return result["komentarUser"];
+      // });
+      console.log("Nama Komentator : ", this.AllComment);
+    },
     handleSubmit(name) {
       this.$refs[name].validate((valid) => {
         if (valid) {
@@ -162,16 +182,7 @@ export default {
         }
       });
     },
-    async CountCommentFunc() {
-      let hasil = await this.$apollo.query({
-        query: COUNT_COMMENT,
-        variables: {
-          _eq: this.$route.params.detail,
-        },
-      });
-      console.log("hasiil count comment : ", hasil);
-      this.countComment = hasil.data.komentar_aggregate.aggregate.count;
-    },
+
     dataUser() {
       let user = JSON.parse(localStorage.getItem("dataHp"));
       this.namaOrang = user.dataHp.UserLogin.username;
@@ -210,9 +221,12 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
     this.dataUser();
-    this.CountCommentFunc();
+    // setTimeout(this.VisibleBtn(), 3000);
+    let a = 1 + 2;
+    let b = await setTimeout(a, 10000);
+    console.log("Nthlah : ", b);
   },
 };
 </script>

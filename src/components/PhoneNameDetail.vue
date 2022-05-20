@@ -109,31 +109,27 @@
         }}
       </h3>
 
-      <p v-else :disabled="(disabel = true)"></p>
+      <p v-else>Blum ada harga</p>
       <!-- <h3 class="subtitle is-3 is-size-4-mobile">Rp 24999000</h3> -->
     </vs-row>
 
     <!-- Btn Quantity -->
-    <Input v-model="quantity" class="has-text-centred">
+    <Input v-model="quantity" readonly class="has-text-centred">
       <template #prepend>
-        <Button
-          icon="md-remove"
-          @click.native="decrement('top-center', 'danger', 2000)"
-        ></Button>
+        <Button icon="md-remove" @click.native="decrement"></Button>
       </template>
       <template #append>
-        <Button
-          icon="md-add"
-          @click.native="increment('top-center', 'danger', 2000)"
-        ></Button>
+        <Button icon="md-add" @click.native="increment"></Button>
       </template>
     </Input>
 
     <!-- Btn Cart -->
     <vs-row class="my-5" vs-type="flex" vs-justify="center">
-      <vs-button @click="AddToCart" style="padding: 2px 8px; font-size: 16px"
-        >Add to Cart</vs-button
-      >
+      <vs-col :lg="4" :xs="12">
+        <Button @click.native="AddToCart" long size="large" type="primary"
+          >Add to Cart</Button
+        >
+      </vs-col>
     </vs-row>
   </vs-col>
 </template>
@@ -167,6 +163,7 @@ export default {
     return {
       quantity: 1,
       dataDetail: [],
+      layar: "",
     };
   },
   methods: {
@@ -270,38 +267,35 @@ export default {
             },
           });
           console.log("Hasil Add to Cart : ", hasilAddCart);
-          alert("Berhasil masukkan ke cart");
+          this.$Modal.success({
+            title: "Berhasil masukkan ke cart",
+          });
         }
       } else {
-        alert("Login terlebih dahulu");
+        this.$Modal.error({
+          title: "Login Terlebih Dahulu",
+          content:
+            "Untuk menambahkan ke keranjang. mohon untuk login terlebih dahulu",
+        });
         this.$router.push("/login");
       }
     },
-    decrement(position = null, color, duration) {
+    decrement() {
       if (this.quantity <= 1) {
-        this.$vs.notification({
-          color,
-          duration,
-          progress: "auto",
-          position,
+        this.$Modal.error({
           title: "Tidak bisa 0",
-          text: "Quantity yang dimasukkan tidak bisa lebih kecil dari 1",
+          content: "Quantity yang dimasukkan tidak bisa lebih kecil dari 1",
         });
       } else {
         this.quantity -= 1;
       }
     },
-    increment(position = null, color, duration) {
+    increment() {
       if (this.quantity >= 90) {
-        this.$vs.notification({
-          color,
-          duration,
-          progress: "auto",
-          position,
+        this.$Modal.error({
           title: "Melebihi Stock",
-          text: "Maaf quantity yang kamu masukkan melebihi stock",
+          content: "Maaf quantity yang kamu masukkan melebihi stock",
         });
-        alert("Melebihi stock");
       } else {
         this.quantity += 1;
       }

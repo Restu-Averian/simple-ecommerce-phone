@@ -1,10 +1,9 @@
 <template>
   <div class="container" style="margin: 120px auto">
     <h1>Checkout</h1>
-    {{ dataCheckout }}
-    <!-- Data Pengiriman -->
-    <vs-row>
-      <vs-col w="6">
+    <vs-row class="my-3">
+      <!-- Data Pengiriman -->
+      <vs-col :lg="6" :xs="12" class="mt-5 p-2">
         <vs-row
           ><h4 class="title is-4 mx-auto">
             {{ dataUser.username }}
@@ -137,81 +136,96 @@
             >
           </vs-col>
         </vs-row>
+        <vs-row>
+          <Divider>
+            <h4 class="title is-4 is-size-5-mobile">
+              Pemilihan Jasa Pengiriman
+            </h4>
+          </Divider>
+          <vs-col w="6" class="has-text-left">
+            <RadioGroup v-model="jasKirChoosed" vertical>
+              <Radio
+                :label="`${jasaKirim.jenis} (${jasaKirim.ongkir})`"
+                v-for="(jasaKirim, index) in jasKir"
+                :key="index"
+                @click.native="ChooseJasKir(jasaKirim)"
+                class="subtitle is-6 is-size-7-mobile"
+              ></Radio>
+            </RadioGroup>
+          </vs-col>
+          <Divider />
+        </vs-row>
       </vs-col>
-      <vs-col w="6">
+      <vs-col :lg="6" :xs="12" class="mt-5 p-2">
         <!-- Informasi Barang -->
-        <div class="col-5 shadow p-3 m-auto">
-          <div
-            class="row m-auto mb-5"
+        <Card style="width: 100%">
+          <template #title> Product Information </template>
+          <vs-row
             v-for="checkout in dataCheckout"
             :key="checkout.id"
+            class="mb-5"
+            align="center"
+            justify="center"
           >
-            <div class="col">
-              <img :src="checkout.image" alt="Gambar" width="150px" />
-            </div>
-            <div class="col">
-              <h4>{{ checkout.phone_name }}</h4>
-              <h6>Rp {{ checkout.price }}</h6>
-            </div>
-          </div>
-
-          <!-- Jenis Ongkir -->
-          <div class="row">
-            <div class="col">
-              <p>Jenis Ongkir :</p>
-            </div>
-            <div class="col">
-              {{ jasKirChoosed }}
-            </div>
-          </div>
-
-          <!-- Harga Ongkir -->
-          <div class="row">
-            <div class="col">
-              <p>Biaya Ongkir :</p>
-            </div>
-            <div class="col">+ Rp {{ ongkirChoosed }}</div>
-          </div>
-
-          <!-- Total Harga -->
-          <div class="row">
-            <div class="col">
-              <p>Total :</p>
-            </div>
-            <div class="col text-center">
-              <h4 class="fw-bold">Rp {{ totPrice }}</h4>
-            </div>
-          </div>
-        </div>
+            <vs-col w="6">
+              <img :src="checkout.image" alt="Gambar" class="img-fluid w-50" />
+            </vs-col>
+            <vs-col w="6" class="has-text-left">
+              <h4 class="title is-4 is-size-5-mobile">
+                {{ checkout.phone_name }}
+              </h4>
+              <h5 class="subtitle is-5 is-size-6-mobile">
+                Rp {{ checkout.price }}
+              </h5>
+              <h6 class="subtitle is-6 is-size-7-mobile">
+                Kuantitas : {{ checkout.quantity }}
+              </h6>
+            </vs-col>
+          </vs-row>
+          <Divider />
+          <vs-row class="has-text-left">
+            <vs-col :lg="6" :xs="12">
+              <h4 class="mb-4">
+                Jenis Ongkir :
+                <span class="subtitle is-6 is-size-7-mobile">
+                  {{ jasKirChoosed }}</span
+                >
+              </h4>
+              <h4>
+                Biaya Ongkir : + Rp
+                <span class="subtitle is-6 is-size-7-mobile">
+                  {{ ongkirChoosed }}</span
+                >
+              </h4>
+            </vs-col>
+          </vs-row>
+          <Divider />
+          <vs-row class="has-text-left">
+            <vs-col :lg="6" :xs="12">
+              <h4>
+                Total :
+                <span class="title is-4">Rp {{ totPrice }}</span>
+              </h4>
+            </vs-col>
+          </vs-row>
+          <Button
+            type="primary"
+            @click.native="modalSaveData = true"
+            long
+            class="mt-6 mb-3"
+            >Pay It</Button
+          >
+          <Modal
+            v-model="modalSaveData"
+            title="Konfirmasi Simpan Data Baru"
+            @on-ok="Proceed"
+            ok-text="Simpan"
+            @on-cancel="tidakSimpan"
+          >
+          </Modal>
+        </Card>
       </vs-col>
     </vs-row>
-    <vs-row>
-      <vs-col w="6">
-        <div class="mb-4">
-          <div
-            class="form-check"
-            v-for="(jasaKirim, index) in jasKir"
-            :key="index"
-          >
-            <input
-              class="form-check-input"
-              type="radio"
-              name="flexRadioDefault"
-              v-model="jasKirChoosed"
-              :value="jasaKirim.jenis"
-              :id="index"
-              required
-              @click="ChooseJasKir(jasaKirim)"
-            />
-            <label class="form-check-label" :for="index">
-              <h4>{{ jasaKirim.jenis }}</h4>
-              <p>Rp {{ jasaKirim.ongkir }}</p>
-            </label>
-          </div>
-        </div>
-      </vs-col>
-    </vs-row>
-    <Button type="primary" @click.native="Proceed">Pay It</Button>
   </div>
 </template>
 
@@ -379,6 +393,7 @@ export default {
       totPrice: "",
 
       jasKirChoosed: "",
+      modalSaveData: false,
     };
   },
 
@@ -529,27 +544,74 @@ export default {
         this.fetchListKelurahan(hasilFilterKecamatan[0].id);
       }
     },
+    async tidakSimpan() {
+      let DataPhoneName = this.dataCheckout.map((checkout) => {
+        return checkout.phone_name;
+      });
+      console.log("Phone Name yang disimpan : ", DataPhoneName);
+
+      this.$Modal.success({
+        title: "Pembelian Berhasil",
+        content:
+          "Silahkan cek riwayat pembelian untuk melihat status barang yang kamu beli",
+      });
+      let simpanCheckout = await this.$apollo.mutate({
+        mutation: Save_Checkout_Data,
+        variables: {
+          objects: {
+            ekspedisi: this.jasKirChoosed,
+            id_user: this.dataUser.id,
+            kecamatan: this.kecamatan,
+            kelurahan: this.kelurahan,
+            kota: this.city,
+            namaUser: this.dataUser.username,
+            no_hp: this.noHp,
+            ongkir: this.ongkirChoosed,
+            provinsi: this.province,
+            nama_product: DataPhoneName.toString(),
+            TotalPrice: this.totPrice,
+          },
+        },
+      });
+      let hasil = await this.$apollo.mutate({
+        mutation: hapusBarang,
+        variables: {
+          _eq: this.dataUser.id,
+        },
+      });
+      console.log("Hasil : ", hasil);
+      console.log("Hasil simpan : ", simpanCheckout);
+      this.$router.push("/home");
+    },
     async Proceed() {
       let DataPhoneName = this.dataCheckout.map((checkout) => {
         return checkout.phone_name;
       });
       console.log("Phone Name yang disimpan : ", DataPhoneName);
-      let tanya = confirm("Apakah mau update data ?");
-      if (tanya) {
-        let hasilUpdate = await this.$apollo.mutate({
-          mutation: Update_Data_User,
-          variables: {
-            kecamatan: this.kecamatan,
-            kelurahan: this.kelurahan,
-            kota: this.city,
-            no_hp: this.noHp,
-            provinsi: this.province,
-            _eq: this.dataUser.id,
-          },
-        });
-        console.log("Iya, hasil mutatenya : ", hasilUpdate);
-      }
-      alert("Pembelian Berhasil");
+      let hasilUpdate = await this.$apollo.mutate({
+        mutation: Update_Data_User,
+        variables: {
+          kecamatan: this.kecamatan,
+          kelurahan: this.kelurahan,
+          kota: this.city,
+          no_hp: this.noHp,
+          provinsi: this.province,
+          _eq: this.dataUser.id,
+        },
+      });
+      console.log("Iya, hasil mutatenya : ", hasilUpdate);
+      this.$Modal.success({
+        title: "Pembelian Berhasil",
+        content:
+          "Silahkan cek riwayat pembelian untuk melihat status barang yang kamu beli",
+      });
+
+      this.$store.dispatch("updateNoHp", this.noHp);
+      this.$store.dispatch("updateProvinsi", this.province);
+      this.$store.dispatch("updateKota", this.city);
+      this.$store.dispatch("updateKecamatan", this.kecamatan);
+      this.$store.dispatch("updateKelurahan", this.kelurahan);
+
       let simpanCheckout = await this.$apollo.mutate({
         mutation: Save_Checkout_Data,
         variables: {

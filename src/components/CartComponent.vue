@@ -16,6 +16,7 @@
           <h4 class="subtitle is-6 has-text-grey-light is-size-7-mobile">
             Yuk mulai berbelanja bisa dengan klik tombol di bawah
           </h4>
+          <Button type="primary" to="/brands">Mulai Belanja</Button>
         </vs-col>
       </vs-row>
     </template>
@@ -83,13 +84,14 @@
 import gql from "graphql-tag";
 const Count_Cart_Data = gql(
   `
-  query MyQuery($_eq: Int!) {
+ subscription MySubscription($_eq: Int!) {
   cart_aggregate(where: {id_userName: {_eq: $_eq}}) {
     aggregate {
       count
     }
   }
 }
+
 
   `
 );
@@ -140,7 +142,6 @@ const UpdatePrice = gql(
 
     `
 );
-let users = JSON.parse(localStorage.getItem("dataHp"));
 
 export default {
   data() {
@@ -161,26 +162,28 @@ export default {
         query: SubscriptionCart,
         variables() {
           return {
-            _eq: users.dataHp.UserLogin.id,
+            _eq: this.dataUser.id,
           };
         },
         result({ data }) {
           this.dataCart = data.cart;
         },
       },
+      countCart: {
+        query: Count_Cart_Data,
+        variables() {
+          return {
+            _eq: this.dataUser.id,
+          };
+        },
+        result({ data }) {
+          this.countCart = data.cart_aggregate.aggregate.count;
+        },
+      },
     },
   },
 
   methods: {
-    async CountCart() {
-      let hasil = await this.$apollo.query({
-        query: Count_Cart_Data,
-        variables: {
-          _eq: this.dataUser.id,
-        },
-      });
-      this.countCart = hasil.data.cart_aggregate.aggregate.count;
-    },
     decrement(index, position = null, color, duration) {
       if (this.dataCart[index].quantity === 1) {
         this.$vs.notification({
@@ -240,8 +243,7 @@ export default {
     },
   },
   mounted() {
-    this.CountCart();
-    let user = localStorage.getItem("daaHp");
+    let user = localStorage.getItem("dataHp");
     if (!user) {
       this.$router.push("/login");
     }

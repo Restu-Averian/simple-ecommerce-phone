@@ -12,10 +12,20 @@
     <vs-row class="mt-5 mb-3">
       <Input
         v-model="password"
-        type="password"
+        :type="showPassword === true ? 'text' : 'password'"
         password
         placeholder="Password"
       />
+      <Input
+        v-model="passwordConfirm"
+        :type="showPassword === true ? 'text' : 'password'"
+        password
+        class="mt-5"
+        placeholder="Password Konfirmasi"
+      />
+      <Checkbox v-model="showPassword" class="my-3" size="large"
+        >Tampilkan Kata Sandi</Checkbox
+      >
     </vs-row>
     <div class="mb-2">
       <Button @click.native="generate" type="primary" ghost
@@ -26,8 +36,12 @@
       <label for="exampleInputPassword1" class="form-label">Preview : </label>
       <img :src="preview" alt="" />
     </div>
-    <vs-row class="mt-6 mx-auto">
-      <Button @click="RegisterProcess" type="primary">Register</Button>
+    <vs-row class="mt-5 mb-3 mx-auto">
+      <vs-col :xs="12" :lg="2" class="mx-auto">
+        <Button @click="RegisterProcess" long size="large" type="primary"
+          >Register</Button
+        >
+      </vs-col>
     </vs-row>
 
     <p class="small-text">
@@ -91,6 +105,8 @@ export default {
         "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394392/List%20Photo%20Untuk%20Mini%20Project/10_zody30.svg",
       ],
       preview: "",
+      showPassword: false,
+      passwordConfirm: "",
     };
   },
 
@@ -103,7 +119,15 @@ export default {
         },
       });
       if (this.username === "" || this.password === "" || this.preview === "") {
-        alert("Masih ada yang Kosong");
+        this.$Modal.error({
+          title: "Form kosong",
+          content: "Mohon diperiksa lagi form yang tersedia",
+        });
+      } else if (this.password !== this.passwordConfirm) {
+        this.$Modal.error({
+          title: "Password ga sama kocak",
+          content: "Mohon diperiksa lagi kesamaannya",
+        });
       } else if (hasilQuery.data.users.length === 0) {
         this.$apollo.mutate({
           mutation: RegisterProcc,

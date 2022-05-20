@@ -17,10 +17,12 @@
         placeholder="Password"
       />
     </vs-row>
-    <vs-row class="mt-6 mx-auto">
-      <Button @click="LoginProcess('top-center', color, 2000)" type="primary"
-        >Login</Button
-      >
+    <vs-row class="mt-5 mb-3 mx-auto">
+      <vs-col :xs="12" :lg="2" class="mx-auto">
+        <Button @click="LoginProcess" long size="large" type="primary"
+          >Login</Button
+        >
+      </vs-col>
     </vs-row>
 
     <p class="small-text">
@@ -103,7 +105,7 @@ export default {
     },
   },
   methods: {
-    async LoginProcess(position = null, color, duration) {
+    async LoginProcess() {
       let hasilQuery = await this.$apollo.query({
         query: LOGIN_PROCESS,
         variables: {
@@ -119,13 +121,9 @@ export default {
         },
       });
       if (hasilQuery.data.users.length == 0) {
-        this.$vs.notification({
-          color: "danger",
-          duration,
-          progress: "auto",
-          position,
-          title: "Data tidak ditemukan",
-          text: "Maaf, data tidak ditemukan, mohon dicek lagi inputannya agar dapat melakukan login",
+        this.$Modal.error({
+          title: "Akun tidak tersedia",
+          content: "Mohon diperiksa lagi inputannya",
         });
       } else {
         let HasilChangeStatus = await this.$apollo.mutate({
@@ -141,20 +139,21 @@ export default {
         this.$store.dispatch("setLogin", {
           id: hasilQuery.data.users[0].id,
           username: hasilQuery.data.users[0].userName,
+          password: hasilQuery.data.users[0].password,
           photo_profile: hasilQuery.data.users[0].photo_profile,
+          no_hp: hasilQuery.data.users[0].no_hp,
           login: HasilChangeStatus.data.update_users.returning[0].isLogin,
           provinsi: hasilQuery.data.users[0].provinsi,
           kota: hasilQuery.data.users[0].kota,
           kecamatan: hasilQuery.data.users[0].kecamatan,
           kelurahan: hasilQuery.data.users[0].kelurahan,
         });
-        this.$vs.notification({
-          color: "success",
-          duration,
-          progress: "auto",
-          position,
+        let hasil = this.$Modal.success({
           title: "Berhasil Login",
-          text: "Silahkan dinikmati fitur yang tersedia !",
+        });
+        console.log("Apa ya outputnya : ", hasil);
+        this.$Modal.success({
+          title: "Berhasil Login",
         });
         this.$router.push("/");
       }

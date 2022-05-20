@@ -1,13 +1,130 @@
 <template>
   <section>
+    <vs-row class="mb-3">
+      <vs-avatar
+        badge
+        size="75"
+        class="mx-auto"
+        style="cursor: pointer"
+        @click="modalImage = true"
+      >
+        <img :src="dataUser.UserLogin.photo_profile" alt="" />
+        <template #badge>
+          <span
+            ><i
+              class="bx bx-pencil align-content-center"
+              style="cursor: pointer"
+            ></i
+          ></span>
+          <!-- <i class='bx bxs-bell-off' ></i> -->
+        </template>
+        <Modal
+          v-model="modalImage"
+          title="Ganti Photo Profile"
+          ok-text="Ganti Photo"
+          @on-ok="ChangePhoto"
+          @on-cancel="cancel('Foto')"
+        >
+          <Row class="mb-3">
+            <img :src="fotoUser" alt="" />
+          </Row>
+          <Row>
+            <Button
+              type="primary"
+              @click="
+                isChangePhoto = true;
+                hiddenBtnChangePhoto = false;
+              "
+              :hidden="isChangePhoto === true ? true : false"
+              >Mau ganti foto profile ?</Button
+            >
+            <Button
+              type="primary"
+              class="mr-3"
+              ghost
+              :hidden="hiddenBtnChangePhoto"
+              @click="GeneratePhoto"
+              >Generate Photo Profile</Button
+            >
+            <Button
+              type="primary"
+              ghost
+              :hidden="hiddenBtnChangePhoto"
+              @click="
+                hiddenBtnChangePhoto = true;
+                isChangePhoto = false;
+              "
+              >Cancel</Button
+            >
+          </Row>
+        </Modal>
+      </vs-avatar>
+      <!-- <img :src="dataUser.UserLogin.photo_profile" alt="" class="mx-auto" /> -->
+    </vs-row>
     <vs-row
-      ><img :src="dataUser.UserLogin.photo_profile" alt="" class="mx-auto"
-    /></vs-row>
-    <vs-row
-      ><h4 class="title is-4 mx-auto">
+      ><h4 class="title is-4 mx-auto my-2">
         {{ dataUser.UserLogin.username }}
-      </h4></vs-row
-    >
+        <span
+          ><i
+            class="bx bx-pencil align-content-center"
+            @click="modal = true"
+            style="cursor: pointer"
+          ></i
+        ></span>
+        <Modal
+          v-model="modal"
+          title="Ganti Username"
+          ok-text="Ganti Username"
+          @on-ok="ChangeUserName"
+          @on-cancel="cancel('Username')"
+        >
+          <Input
+            v-model="username"
+            size="large"
+            placeholder="Masukkan username yang baru..."
+          />
+        </Modal>
+      </h4>
+    </vs-row>
+    <vs-row>
+      <Button type="text" @click="checkPass = true" class="mx-auto" size="large"
+        >Change Password</Button
+      >
+      <Modal
+        v-model="checkPass"
+        title="Password Lama"
+        @on-ok="checkPassword"
+        ok-text="Check Password Lama"
+        @on-cancel="cancel('Password')"
+      >
+        <Input
+          :type="showPassword == true ? 'text' : 'password'"
+          v-model="password"
+          size="large"
+          placeholder="Masukkan password yang lama"
+        />
+        <Checkbox v-model="showPassword" class="my-3" size="large"
+          >Tampilkan Kata Sandi</Checkbox
+        >
+      </Modal>
+      <Modal
+        v-model="modalPass"
+        title="Ganti Password"
+        @on-ok="ChangePassword"
+        ok-text="Ganti Password"
+        @on-cancel="cancel('Password baru')"
+      >
+        <Input
+          :type="showPassword == true ? 'text' : 'password'"
+          v-model="passwordBaru"
+          size="large"
+          placeholder="Masukkan password yang baru..."
+        />
+        <Checkbox v-model="showPassword" class="my-3" size="large"
+          >Tampilkan Kata Sandi</Checkbox
+        >
+      </Modal>
+    </vs-row>
     <vs-row class="my-4">
       <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="12">
         <Button
@@ -22,6 +139,7 @@
         >
       </vs-col>
     </vs-row>
+
     <vs-row class="mt-5 mb-3">
       <Input
         v-model="noHp"
@@ -30,6 +148,7 @@
         placeholder="No. Handphone"
       />
     </vs-row>
+
     <vs-row class="mt-5 mb-3">
       <Select
         v-model="province"
@@ -154,6 +273,20 @@
 <script>
 import axios from "axios";
 import gql from "graphql-tag";
+const ChangeUserName = gql(
+  `
+  mutation MyMutation($userName: String!, $_eq: Int!) {
+  update_users(where: {id: {_eq: $_eq}}, _set: {userName: $userName}) {
+    returning {
+      id
+      isLogin
+      userName
+    }
+  }
+}
+
+  `
+);
 const UpdateData = gql(
   `
     mutation MyMutation($_set: users_set_input = {}, $_eq: Int!) {
@@ -174,6 +307,46 @@ const UpdateData = gql(
 
     `
 );
+const CHECK_PASSWORD = gql(
+  `
+ query MyQuery($_eq: Int!) {
+  users(where: {id: {_eq: $_eq}}) {
+    id
+    isLogin
+    kelurahan
+    kecamatan
+    kota
+    no_hp
+    password
+    provinsi
+    photo_profile
+    userName
+  }
+}
+
+
+  `
+);
+const CHANGE_PASSWORD = gql(
+  `
+  mutation MyMutation($password: String!, $_eq: Int!) {
+  update_users(where: {id: {_eq: $_eq}}, _set: {password: $password}) {
+    returning {
+      id
+      isLogin
+      kecamatan
+      kelurahan
+      kota
+      no_hp
+      password
+      photo_profile
+      userName
+    }
+  }
+}
+
+  `
+);
 const GET_USER_DATA = gql(
   `
     query MyQuery($_eq: Int!) {
@@ -192,6 +365,30 @@ const GET_USER_DATA = gql(
 
     `
 );
+
+const CHANGE_PHOTO_PROFILE = gql(
+  `
+ mutation MyMutation($photo_profile: String!, $_eq: Int!) {
+  update_users(where: {id: {_eq: $_eq}}, _set: {photo_profile: $photo_profile}) {
+    returning {
+      id
+      isLogin
+      kecamatan
+      kelurahan
+      kota
+      no_hp
+      photo_profile
+      password
+      provinsi
+      userName
+    }
+  }
+}
+
+
+  `
+);
+
 export default {
   data() {
     return {
@@ -212,11 +409,49 @@ export default {
       kelurahan: "",
 
       noHp: "",
+
       isEdit: true,
       hiddenBtn: true,
       isEmptyCity: true,
       isEmptyKecamatan: true,
       isEmptyKelurahan: true,
+
+      username: "",
+      password: "",
+      passwordBaru: "",
+
+      modal: false,
+
+      checkPass: false,
+      modalPass: false,
+      showPassword: false,
+
+      modalImage: false,
+      isChangePhoto: false,
+      hiddenBtnChangePhoto: true,
+      fotoUser: "",
+      listPhoto: [
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394398/List%20Photo%20Untuk%20Mini%20Project/9_dia4jd.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394397/List%20Photo%20Untuk%20Mini%20Project/8_kgsiwc.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394396/List%20Photo%20Untuk%20Mini%20Project/6_pty6od.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394396/List%20Photo%20Untuk%20Mini%20Project/7_zjvjjr.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394396/List%20Photo%20Untuk%20Mini%20Project/5_bsidfa.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394396/List%20Photo%20Untuk%20Mini%20Project/4_o9vwnq.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394396/List%20Photo%20Untuk%20Mini%20Project/3_rdgm7h.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394396/List%20Photo%20Untuk%20Mini%20Project/20_wr2ui1.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394395/List%20Photo%20Untuk%20Mini%20Project/2_fqozv3.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394394/List%20Photo%20Untuk%20Mini%20Project/19_mouk6o.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394394/List%20Photo%20Untuk%20Mini%20Project/18_byvdk0.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394394/List%20Photo%20Untuk%20Mini%20Project/17_qzp7ct.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394394/List%20Photo%20Untuk%20Mini%20Project/15_y3qwxt.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394394/List%20Photo%20Untuk%20Mini%20Project/16_kadxpq.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394393/List%20Photo%20Untuk%20Mini%20Project/1_dyelga.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394392/List%20Photo%20Untuk%20Mini%20Project/11_bqwivz.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394392/List%20Photo%20Untuk%20Mini%20Project/12_e8k0wj.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394392/List%20Photo%20Untuk%20Mini%20Project/13_imkret.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394392/List%20Photo%20Untuk%20Mini%20Project/14_rq8rq4.svg",
+        "https://res.cloudinary.com/dcvolkyfb/image/upload/v1651394392/List%20Photo%20Untuk%20Mini%20Project/10_zody30.svg",
+      ],
     };
   },
   computed: {
@@ -225,6 +460,83 @@ export default {
     },
   },
   methods: {
+    GeneratePhoto() {
+      let randomAngka = Math.floor(Math.random() * 20);
+      this.fotoUser = this.listPhoto[randomAngka];
+    },
+    ChangePhoto() {
+      this.$apollo.mutate({
+        mutation: CHANGE_PHOTO_PROFILE,
+        variables: {
+          _eq: this.dataUser.UserLogin.id,
+          photo_profile: this.fotoUser,
+        },
+      });
+      this.$store.dispatch("updatePhotoProfile", this.fotoUser);
+    },
+    async ChangePassword() {
+      let hasil = await this.$apollo.mutate({
+        mutation: CHANGE_PASSWORD,
+        variables: {
+          _eq: this.dataUser.UserLogin.id,
+          password: this.passwordBaru,
+        },
+      });
+      let passwordBaru = hasil.data.update_users.returning[0].password;
+      if (passwordBaru === this.dataUser.UserLogin.password) {
+        this.$Modal.error({
+          title: "Password sama",
+          content: "Password sama dengan yang lama, tidak dapat ganti password",
+        });
+      } else {
+        this.$Modal.success({
+          title: "Password telah berhasil diganti",
+        });
+        this.$store.dispatch("updatePassword", passwordBaru);
+      }
+      this.passwordBaru = "";
+    },
+    async checkPassword() {
+      let hasil = await this.$apollo.query({
+        query: CHECK_PASSWORD,
+        variables: {
+          _eq: this.dataUser.UserLogin.id,
+        },
+      });
+      if (hasil.data.users[0].password === this.password) {
+        this.$Modal.success({
+          title: "Password Benar",
+        });
+        this.modalPass = true;
+      } else {
+        this.$Modal.error({
+          title: "Password salah",
+        });
+      }
+      this.password = "";
+    },
+    async ChangeUserName() {
+      let hasil = await this.$apollo.mutate({
+        mutation: ChangeUserName,
+        variables: {
+          userName: this.username,
+          _eq: this.dataUser.UserLogin.id,
+        },
+      });
+
+      this.$store.dispatch(
+        "updateUsername",
+        hasil.data.update_users.returning[0].userName
+      );
+      alert("Ganti nama berhasil");
+    },
+    cancel(YgDiganti) {
+      this.$Modal.info({
+        title: `Tidak jadi ganti ${YgDiganti}`,
+      });
+      this.hiddenBtnChangePhoto = true;
+      this.isChangePhoto = false;
+    },
     EditData() {
       this.isEdit = false;
 
@@ -255,6 +567,7 @@ export default {
           },
         },
       });
+      this.$store.dispatch("updateNoHp", this.noHp);
       this.$store.dispatch("updateProvinsi", this.province);
       this.$store.dispatch("updateKota", this.city);
       this.$store.dispatch("updateKecamatan", this.kecamatan);
@@ -272,7 +585,6 @@ export default {
 
       let dataUser = hasil.data.users[0];
       console.log("Data User : ", dataUser);
-
       this.noHp = dataUser.no_hp;
       this.province = dataUser.provinsi;
       this.city = dataUser.kota;
@@ -383,7 +695,8 @@ export default {
   async mounted() {
     this.fetchListProvinsi();
     await this.fetchDataUser();
-    console.log("ada ", this.city);
+    this.username = this.dataUser.UserLogin.username;
+    this.fotoUser = this.dataUser.UserLogin.photo_profile;
     let user = localStorage.getItem("dataHp");
     if (!user) {
       this.$router.push("/login");
