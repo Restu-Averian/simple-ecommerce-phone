@@ -12,14 +12,22 @@
     <vs-row class="mt-5 mb-3">
       <Input
         v-model="password"
-        type="password"
+        :type="showPassword == true ? 'text' : 'password'"
         password
         placeholder="Password"
       />
+      <Checkbox v-model="showPassword" class="my-3" size="large"
+        >Tampilkan Kata Sandi</Checkbox
+      >
     </vs-row>
     <vs-row class="mt-5 mb-3 mx-auto">
       <vs-col :xs="12" :lg="2" class="mx-auto">
-        <Button @click="LoginProcess" long size="large" type="primary"
+        <Button
+          @click="LoginProcess"
+          long
+          size="large"
+          type="primary"
+          :loading="loading"
           >Login</Button
         >
       </vs-col>
@@ -34,26 +42,45 @@
 
 <script>
 import gql from "graphql-tag";
-const LOGIN_PROCESS = gql(
+const SubsUserData = gql(
   `
-    query MyQuery($photo_profile: String_comparison_exp!, $password: String_comparison_exp!, $userName: String_comparison_exp!) {
-  users(where: {photo_profile: $photo_profile, password: $password, userName: $userName}) {
+  subscription MySubscription($_eq: String!) {
+  users(where: {userName: {_eq: $_eq}}) {
     id
-    password
-    photo_profile
-    userName
-    no_hp
-    provinsi
-    kota
+    isLogin
     kecamatan
     kelurahan
-    isLogin
+    kota
+    no_hp
+    password
+    photo_profile
+    provinsi
+    userName
   }
 }
 
-
-    `
+  `
 );
+// const LOGIN_PROCESS = gql(
+//   `
+//     query MyQuery($photo_profile: String_comparison_exp!, $password: String_comparison_exp!, $userName: String_comparison_exp!) {
+//   users(where: {photo_profile: $photo_profile, password: $password, userName: $userName}) {
+//     id
+//     password
+//     photo_profile
+//     userName
+//     no_hp
+//     provinsi
+//     kota
+//     kecamatan
+//     kelurahan
+//     isLogin
+//   }
+// }
+
+//     `
+// );
+
 const GOT_PHOTO_PROFILE = gql(
   `
   query MyQuery($_eq: Int!) {
@@ -92,6 +119,9 @@ export default {
     return {
       username: "",
       password: "",
+      showPassword: false,
+      userData: "",
+      loading: false,
     };
   },
   computed: {
@@ -104,23 +134,26 @@ export default {
       });
     },
   },
+  apollo: {
+    $subscribe: {
+      userData: {
+        query: SubsUserData,
+        variables() {
+          return {
+            _eq: this.username,
+          };
+        },
+        result({ data }) {
+          this.userData = data.users;
+        },
+      },
+    },
+  },
   methods: {
     async LoginProcess() {
-      let hasilQuery = await this.$apollo.query({
-        query: LOGIN_PROCESS,
-        variables: {
-          userName: {
-            _eq: this.username,
-          },
-          password: {
-            _eq: this.password,
-          },
-          photo_profile: {
-            _eq: this.Got_Profile.photo_profile,
-          },
-        },
-      });
-      if (hasilQuery.data.users.length == 0) {
+      this.loading = true;
+      if (this.userData.length == 0) {
+        this.loading = false;
         this.$Modal.error({
           title: "Akun tidak tersedia",
           content: "Mohon diperiksa lagi inputannya",
@@ -129,35 +162,33 @@ export default {
         let HasilChangeStatus = await this.$apollo.mutate({
           mutation: CHANGE_ISLOGIN_STATUS,
           variables: {
-            _eq: hasilQuery.data.users[0].id,
+            _eq: this.userData[0].id,
           },
         });
         console.log(
           "Jalan g ya hasil change status loginnya : ",
           HasilChangeStatus
         );
+
         this.$store.dispatch("setLogin", {
-          id: hasilQuery.data.users[0].id,
-          username: hasilQuery.data.users[0].userName,
-          password: hasilQuery.data.users[0].password,
-          photo_profile: hasilQuery.data.users[0].photo_profile,
-          no_hp: hasilQuery.data.users[0].no_hp,
+          id: this.userData[0].id,
+          username: this.userData[0].userName,
+          password: this.userData[0].password,
+          photo_profile: this.userData[0].photo_profile,
+          no_hp: this.userData[0].no_hp,
           login: HasilChangeStatus.data.update_users.returning[0].isLogin,
-          provinsi: hasilQuery.data.users[0].provinsi,
-          kota: hasilQuery.data.users[0].kota,
-          kecamatan: hasilQuery.data.users[0].kecamatan,
-          kelurahan: hasilQuery.data.users[0].kelurahan,
+          provinsi: this.userData[0].provinsi,
+          kota: this.userData[0].kota,
+          kecamatan: this.userData[0].kecamatan,
+          kelurahan: this.userData[0].kelurahan,
         });
-        let hasil = this.$Modal.success({
-          title: "Berhasil Login",
-        });
-        console.log("Apa ya outputnya : ", hasil);
+        this.loading = false;
         this.$Modal.success({
           title: "Berhasil Login",
         });
         this.$router.push("/");
       }
-      console.log("hasilLoginQuery: ", hasilQuery);
+      // console.log("hasilLoginQuery: ", user);
     },
   },
   mounted() {

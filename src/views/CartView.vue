@@ -1,6 +1,6 @@
 <template>
   <div class="container" style="margin: 120px auto">
-    <h1>Cart</h1>
+    <h1 class="title is-3 is-size-4-mobile">Cart</h1>
     <cart-component />
   </div>
 </template>

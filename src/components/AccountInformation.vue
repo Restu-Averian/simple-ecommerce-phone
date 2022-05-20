@@ -267,6 +267,40 @@
         >
       </vs-col>
     </vs-row>
+
+    <vs-row class="mt-4">
+      <Button
+        @click="modalConfirmDeleteAcc = true"
+        class="mx-auto"
+        type="error"
+        size="large"
+        icon="ios-trash-outline"
+        ghost
+        >Hapus Akun</Button
+      >
+      <Modal v-model="modalConfirmDeleteAcc" ok-text="Hapus Akun">
+        <template #header>
+          <p style="color: #f60; text-align: center">
+            <Icon type="ios-information-circle"></Icon>
+            <span>Delete confirmation</span>
+          </p>
+        </template>
+        <p class="mb-4 subtitle is-6 is-size-7-mobile">
+          Masukkan <strong>{{ dataUser.UserLogin.username }}</strong> pada
+          inputan di bawah ini
+        </p>
+        <Input size="large" v-model="confirmDelete" />
+        <template #footer>
+          <Button
+            type="error"
+            size="large"
+            :loading="modal_loading"
+            @click="del"
+            >Delete</Button
+          >
+        </template>
+      </Modal>
+    </vs-row>
   </section>
 </template>
 
@@ -389,9 +423,92 @@ const CHANGE_PHOTO_PROFILE = gql(
   `
 );
 
+const DeleteUser = gql(
+  `
+  mutation MyMutation($_eq: Int!) {
+  delete_users(where: {id: {_eq: $_eq}}) {
+    returning {
+      id
+      isLogin
+      kecamatan
+      kelurahan
+      kota
+      no_hp
+      password
+      photo_profile
+      provinsi
+      userName
+    }
+  }
+}
+
+  `
+);
+const DeleteUserCart = gql(
+  `
+mutation MyMutation($_eq: Int!) {
+  delete_cart(where: {id_userName: {_eq: $_eq}}) {
+    returning {
+      id
+      id_userName
+      phone_name
+      image
+      quantity
+      price
+      phone_slug
+    }
+  }
+}
+
+  `
+);
+const DeleteUserKomentar = gql(
+  `
+mutation MyMutation($_eq: Int!) {
+  delete_komentar(where: {id_user: {_eq: $_eq}}) {
+    returning {
+      id
+      id_user
+      jumlahDislike
+      jumlahLike
+      komentarUser
+      phoneName
+      photo_profile
+      userName
+    }
+  }
+}
+
+  `
+);
+const DeleteUserCheckout = gql(
+  `
+mutation MyMutation($_eq: Int!) {
+  delete_checkout(where: {id_user: {_eq: $_eq}}) {
+    returning {
+      TotalPrice
+      ekspedisi
+      id
+      id_user
+      kecamatan
+      kota
+      kelurahan
+      namaUser
+      nama_product
+      no_hp
+    }
+  }
+}
+
+  `
+);
 export default {
   data() {
     return {
+      modalConfirmDeleteAcc: false,
+      confirmDelete: "",
+      modal_loading: false,
+
       listProvinsi: [],
       namaProvinsi: [],
       province: "",
@@ -460,6 +577,52 @@ export default {
     },
   },
   methods: {
+    async del() {
+      this.modal_loading = true;
+      if (this.confirmDelete === this.dataUser.UserLogin.username) {
+        await setTimeout(() => {
+          this.modal_loading = false;
+          this.modalConfirmDeleteAcc = false;
+          this.$Modal.success({
+            title: "Akun berhasil dihapus",
+          });
+          this.$router.push("/login");
+        }, 2000);
+
+        this.$apollo.mutate({
+          mutation: DeleteUser,
+          variables: {
+            _eq: this.dataUser.UserLogin.id,
+          },
+        });
+        this.$apollo.mutate({
+          mutation: DeleteUserCart,
+          variables: {
+            _eq: this.dataUser.UserLogin.id,
+          },
+        });
+        this.$apollo.mutate({
+          mutation: DeleteUserKomentar,
+          variables: {
+            _eq: this.dataUser.UserLogin.id,
+          },
+        });
+        this.$apollo.mutate({
+          mutation: DeleteUserCheckout,
+          variables: {
+            _eq: this.dataUser.UserLogin.id,
+          },
+        });
+        this.$store.dispatch("updateLogin", false);
+        localStorage.removeItem("dataHp");
+      } else {
+        this.modal_loading = false;
+
+        this.$Modal.error({
+          title: "Akun tidak jadi dihapus",
+        });
+      }
+    },
     GeneratePhoto() {
       let randomAngka = Math.floor(Math.random() * 20);
       this.fotoUser = this.listPhoto[randomAngka];
@@ -528,7 +691,9 @@ export default {
         "updateUsername",
         hasil.data.update_users.returning[0].userName
       );
-      alert("Ganti nama berhasil");
+      this.$Modal.success({
+        title: "Ganti nama berhasil",
+      });
     },
     cancel(YgDiganti) {
       this.$Modal.info({

@@ -1,5 +1,5 @@
 <template>
-  <vs-col>
+  <section ref="contentData">
     <vs-row class="mb-3">
       <h1 class="title is-1 is-size-3-mobile has-text-left">
         {{ dataDetail.phone_name }}
@@ -126,12 +126,17 @@
     <!-- Btn Cart -->
     <vs-row class="my-5" vs-type="flex" vs-justify="center">
       <vs-col :lg="4" :xs="12">
-        <Button @click.native="AddToCart" long size="large" type="primary"
+        <Button
+          @click.native="AddToCart"
+          long
+          size="large"
+          type="primary"
+          :loading="loading"
           >Add to Cart</Button
         >
       </vs-col>
     </vs-row>
-  </vs-col>
+  </section>
 </template>
 
 <script>
@@ -164,10 +169,15 @@ export default {
       quantity: 1,
       dataDetail: [],
       layar: "",
+      loading: false,
     };
   },
   methods: {
     fetchDataDetail() {
+      const loading = this.$vs.loading({
+        text: "Mohon tunggu sebentar, sedang mengambil data...",
+        target: this.$refs.contentData,
+      });
       axios
         .get(
           `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
@@ -175,10 +185,12 @@ export default {
         .then((response) => {
           console.log("hasil : ", response);
           this.dataDetail = response.data.data;
+          loading.close();
         });
     },
     async AddToCart() {
       let Users = JSON.parse(localStorage.getItem("dataHp"));
+      this.loading = true;
 
       //Check login or not
       if (Users) {
@@ -270,13 +282,18 @@ export default {
           this.$Modal.success({
             title: "Berhasil masukkan ke cart",
           });
+          this.loading = false;
         }
       } else {
-        this.$Modal.error({
-          title: "Login Terlebih Dahulu",
-          content:
-            "Untuk menambahkan ke keranjang. mohon untuk login terlebih dahulu",
-        });
+        await setTimeout(
+          (this.loading = false),
+          this.$Modal.error({
+            title: "Login Terlebih Dahulu",
+            content:
+              "Untuk menambahkan ke keranjang. mohon untuk login terlebih dahulu",
+          }),
+          2000
+        );
         this.$router.push("/login");
       }
     },

@@ -1,7 +1,9 @@
 <template>
   <div class="my-4">
     <div class="center examplex">
-      <vs-table striped>
+      <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+
+      <vs-table striped ref="dataTable">
         <template #thead>
           <vs-tr>
             <vs-th> No </vs-th>
@@ -9,6 +11,7 @@
             <vs-th> Favourites </vs-th>
           </vs-tr>
         </template>
+
         <template #tbody>
           <vs-tr :key="i" v-for="(fans, i) in dataTopByFans" @click="detail(i)">
             <vs-td>
@@ -34,14 +37,27 @@ export default {
   data() {
     return {
       dataTopByFans: [],
+      kalauError: "",
     };
   },
   methods: {
     fetchTopByFans() {
+      let loading = this.$vs.loading({
+        text: "Sedang mengambil data barang, mohon tunggu sebentar...",
+        target: this.$refs.dataTable,
+      });
       axios
         .get("https://api-mobilespecs.azharimm.site/v2/top-by-fans")
         .then((result) => {
           this.dataTopByFans = result.data.data.phones;
+          loading.close();
+        })
+        .catch((error) => {
+          if (error.response.data.status == false) {
+            this.kalauError =
+              "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          }
+          console.log("Error di table: ", error.response.data);
         });
     },
     detail(index) {

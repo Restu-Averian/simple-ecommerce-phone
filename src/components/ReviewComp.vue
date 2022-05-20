@@ -1,6 +1,5 @@
 <template>
   <section class="my-6">
-    {{ AllComment }}
     <Input
       placeholder="Username"
       size="large"

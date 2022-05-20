@@ -26,13 +26,13 @@
           size="large"
           class="mr-3"
           v-model="search"
-          @keyup.native.enter="searchProduct('top-center', 'danger', 2000)"
+          @keyup.native.enter="searchProduct"
         >
           <Button
             type="primary"
             slot="append"
             icon="ios-search"
-            @click.native="searchProduct('top-center', 'danger', 2000)"
+            @click.native="searchProduct"
           ></Button>
         </Input>
       </template>
@@ -56,61 +56,22 @@
               <p @click="GoToUserPage">Account Information</p>
             </DropdownItem>
             <DropdownItem>
-              <p @click="LogOut">Logout</p>
+              <p @click="modalLogout = true">Logout</p>
             </DropdownItem>
+            <Modal v-model="modalLogout">
+              <template #header>
+                <p style="color: #f60; text-align: center">
+                  <Icon type="ios-information-circle"></Icon>
+                  <span>Logout Konfirmasi</span>
+                </p>
+              </template>
+              <p class="subtitle is=5">Apakah kamu yakin untuk keluar ?</p>
+              <template #footer>
+                <Button type="error" @click="LogOut" ghost>Logout</Button>
+              </template>
+            </Modal>
           </DropdownMenu>
         </Dropdown>
-
-        <!-- <b-navbar-item tag="div">
-        <div class="navbar-menu">
-          <div class="navbar-end">
-            <b-dropdown
-              position="is-bottom-left"
-              append-to-body
-              aria-role="menu"
-            >
-              <template #trigger>
-                <vs-avatar circle>
-                  <img :src="DataUser.photo_profile" alt="" />
-                </vs-avatar>
-              </template>
-
-              <b-dropdown-item custom aria-role="menuitem">
-                Logged as <b>{{ DataUser.username }}</b>
-              </b-dropdown-item>
-              <hr class="dropdown-divider" />
-
-              <b-dropdown-item
-                value="home"
-                :active="active === 3"
-                @click="goTo('/', 3)"
-                aria-role="menuitem"
-              >
-                <i class="bx bx-home-alt"></i>
-                Home
-              </b-dropdown-item>
-              <b-dropdown-item
-                value="account"
-                :active="active === 4"
-                @click="goTo('/user', 4)"
-                aria-role="menuitem"
-              >
-                <i class="bx bx-user"></i>
-                Account
-              </b-dropdown-item>
-
-              <b-dropdown-item
-                value="logout"
-                @click="LogOut"
-                aria-role="menuitem"
-              >
-                <i class="bx bx-log-out"></i>
-                Logout
-              </b-dropdown-item>
-            </b-dropdown>
-          </div>
-        </div>
-      </b-navbar-item> -->
       </template>
       <template #right v-else>
         <Button type="primary" @click="goTo('/login', 1)" size="large"
@@ -121,16 +82,8 @@
     <vs-sidebar
       v-model="active"
       :open.sync="activeSidebar"
-      v-if="DataUser === ''"
+      v-if="DataUser.login"
     >
-      <vs-sidebar-item id="home" v-model="active" to="/login">
-        <template #icon>
-          <i class="bx bx-user"></i>
-        </template>
-        Login
-      </vs-sidebar-item>
-    </vs-sidebar>
-    <vs-sidebar v-model="active" :open.sync="activeSidebar" v-else>
       <template #logo>
         <!-- ...img logo -->
       </template>
@@ -171,24 +124,42 @@
         </vs-sidebar-item>
       </vs-sidebar-group>
 
-      <template #footer>
-        <Button type="error" @click.native="LogOut" long ghost>Log Out</Button>
-        <!-- <vs-row justify="space-between">
-          <vs-avatar>
-            <img :src="DataUser.photo_profile" alt="" />
-          </vs-avatar>
-
-          <vs-avatar
-            badge-color="danger"
-            badge-position="top-right"
-            @click="goTo('/cart')"
-          >
-            <i class="bx bx-cart"></i>
-
-            <template #badge> {{ dataCart }} </template>
-          </vs-avatar>
-        </vs-row> -->
-      </template>
+      <Button type="error" @click.native="modalLogout = true" long ghost
+        >Log Out</Button
+      >
+      <Modal v-model="modalLogout">
+        <template #header>
+          <p style="color: #f60; text-align: center">
+            <Icon type="ios-information-circle"></Icon>
+            <span>Logout Konfirmasi</span>
+          </p>
+        </template>
+        <p class="subtitle is=5">Apakah kamu yakin untuk keluar ?</p>
+        <template #footer>
+          <Button type="error" @click="LogOut" ghost>Logout</Button>
+        </template>
+      </Modal>
+      <template #footer> </template>
+    </vs-sidebar>
+    <vs-sidebar v-model="active" :open.sync="activeSidebar" v-else>
+      <vs-sidebar-item id="home" v-model="active" to="/">
+        <template #icon>
+          <i class="bx bx-home"></i>
+        </template>
+        Home
+      </vs-sidebar-item>
+      <vs-sidebar-item id="login" v-model="active" to="/login">
+        <template #icon>
+          <i class="bx bx-log-in-circle"></i>
+        </template>
+        Login
+      </vs-sidebar-item>
+      <vs-sidebar-item id="register" v-model="active" to="/register">
+        <template #icon>
+          <i class="bx bx-registered"></i>
+        </template>
+        Register
+      </vs-sidebar-item>
     </vs-sidebar>
   </div>
 </template>
@@ -209,7 +180,7 @@ export default {
       data1: [],
       name: "",
       selected: null,
-      modal: false,
+      modalLogout: false,
     };
   },
 
@@ -241,15 +212,11 @@ export default {
   //   },
   // },
   methods: {
-    searchProduct(position = null, color, duration) {
+    searchProduct() {
       if (this.search === "") {
-        this.$vs.notification({
-          color,
-          duration,
-          progress: "auto",
-          position,
+        this.$Modal.error({
           title: "Pencarianmu masih kosong",
-          text: "Mohon diisi dulu inputannya agar dapat melakukan pencarian",
+          content: "Mohon diisi dulu inputannya agar dapat melakukan pencarian",
         });
       } else {
         axios
@@ -273,19 +240,12 @@ export default {
       console.log("clicked");
     },
 
-    async LogOut() {
+    LogOut() {
       console.log("Kok harus di console log dulu :  ", this.DataUser);
-      let keluar = confirm("Yakin ? ");
-      if (keluar) {
-        this.$store.dispatch("setLogin", {
-          id: this.DataUser.id,
-          username: this.DataUser.username,
-          photo_profile: this.DataUser.photo_profile,
-          login: false,
-        });
-        localStorage.removeItem("dataHp");
-        this.$router.push("/");
-      }
+      this.$store.dispatch("updateLogin", false);
+      localStorage.removeItem("dataHp");
+      this.$router.push("/");
+      this.modalLogout = false;
     },
   },
 };

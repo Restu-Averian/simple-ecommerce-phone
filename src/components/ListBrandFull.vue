@@ -2,7 +2,7 @@
   <div style="margin: 120px auto" class="container">
     <Divider><h1 class="title is-3 is-size-4-mobile">Brands</h1></Divider>
 
-    <vs-row>
+    <vs-row ref="contentBrands">
       <vs-col
         v-for="(brands, index) in dataBrands"
         :key="index"
@@ -40,10 +40,15 @@ export default {
 
   methods: {
     fetchAPIBrands() {
+      let loading = this.$vs.loading({
+        text: "Sedang mengambil data brands, mohon tunggu sebentar...",
+        target: this.$refs.contentBrands,
+      });
       axios
         .get("https://api-mobilespecs.azharimm.site/v2/brands")
         .then((response) => {
           this.dataBrands = response.data.data;
+          loading.close();
         });
     },
     goToHp(index, slug) {

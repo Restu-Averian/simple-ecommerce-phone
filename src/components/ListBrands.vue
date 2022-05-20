@@ -1,8 +1,8 @@
 <template>
   <section>
     <Divider><h1 class="title is-3 is-size-4-mobile">Brands</h1></Divider>
-
-    <vs-row>
+    <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+    <vs-row ref="contentBrands">
       <vs-col
         v-for="(brands, index) in dataBrands.slice(0, 6)"
         :key="index"
@@ -25,11 +25,11 @@
           </div>
         </Card>
       </vs-col>
-    </vs-row>
-    <vs-row>
-      <vs-col class="my-3">
-        <Button type="primary" to="/brands" size="large">Show More</Button>
-      </vs-col>
+      <vs-row>
+        <vs-col class="my-3">
+          <Button type="primary" to="/brands" size="large">Show More</Button>
+        </vs-col>
+      </vs-row>
     </vs-row>
   </section>
 </template>
@@ -40,15 +40,28 @@ export default {
   data() {
     return {
       dataBrands: [],
+      kalauError: "",
     };
   },
 
   methods: {
     fetchAPIBrands() {
+      let loading = this.$vs.loading({
+        text: "Fetching brands data",
+        target: this.$refs.contentBrands,
+      });
       axios
         .get("https://api-mobilespecs.azharimm.site/v2/brands")
         .then((response) => {
           this.dataBrands = response.data.data;
+          loading.close();
+        })
+        .catch((error) => {
+          if (error.response.data.status == false) {
+            this.kalauError =
+              "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          }
+          console.log("Error : ", error.response.data);
         });
     },
     goToHp(index, slug) {
