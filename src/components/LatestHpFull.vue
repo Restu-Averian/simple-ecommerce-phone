@@ -1,7 +1,7 @@
 <template>
   <div style="margin: 120px auto" class="container">
     <Divider><h1 class="title is-3">Latests</h1></Divider>
-    <vs-row>
+    <vs-row ref="contentLatest">
       <vs-col
         v-for="(latests, index) in dataLatests"
         :key="index"
@@ -40,10 +40,15 @@ export default {
   },
   methods: {
     fetchDataLatests() {
+      let loading = this.$vs.loading({
+        text: "Sedang mengambil data Latest Hp, mohon tunggu sebentar...",
+        target: this.$refs.contentLatest,
+      });
       axios
         .get("https://api-mobilespecs.azharimm.site/v2/latest")
         .then((result) => {
           this.dataLatests = result.data.data.phones;
+          loading.close();
         });
     },
     detail(index) {

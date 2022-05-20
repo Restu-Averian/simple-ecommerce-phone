@@ -1,5 +1,5 @@
 <template>
-  <section class="my-5">
+  <section class="my-5" ref="contentCart">
     <template v-if="countCart === 0">
       <vs-row>
         <vs-col w="12">
@@ -21,46 +21,63 @@
       </vs-row>
     </template>
     <template v-else-if="countCart !== 0">
-      <vs-row v-for="(cart, index) in dataCart" :key="index" class="mb-3">
-        <vs-col w="3">
-          <img :src="cart.image" alt="" />
+      <vs-row
+        v-for="(cart, index) in dataCart"
+        :key="cart.id"
+        align="center"
+        justify="space-around"
+        class="mb-6"
+      >
+        <vs-col :lg="3" :xs="2" class="ml-2">
+          <img :src="cart.image" alt="" class="img-fluid" />
         </vs-col>
-        <vs-col w="6" class="has-text-left">
-          <vs-row @click.native="detail(index)" class="productName">
+        <vs-col :lg="4" :xs="5" class="has-text-left">
+          <vs-row @click.native="detail(index)" class="productName mb-3">
             <vs-col w="12">
-              <h3 class="title is-3">{{ cart.phone_name }}</h3>
+              <h3 class="title is-3 is-size-5-mobile">
+                {{ cart.phone_name }}
+              </h3>
+            </vs-col>
+          </vs-row>
+
+          <vs-row class="mb-3">
+            <vs-col w="12">
+              <h4 class="subtitle is-5 is-size-7-mobile">
+                Rp {{ (totalPrice[index] = cart.price * cart.quantity) }}
+                <Button
+                  @click.native="ChangePrice(index)"
+                  size="small"
+                  type="primary"
+                  ghost
+                  >Change
+                </Button>
+              </h4>
             </vs-col>
           </vs-row>
 
           <vs-row>
-            <vs-col w="6">
-              <Input v-model="cart.quantity" class="has-text-centred">
+            <vs-col :lg="6" :xs="12">
+              <Input v-model="cart.quantity" readonly class="has-text-centred">
                 <template #prepend>
                   <Button
                     icon="md-remove"
-                    @click.native="
-                      decrement(index, 'top-center', 'danger', 2000)
-                    "
+                    @click.native="decrement(index)"
+                    size="small"
                   ></Button>
                 </template>
                 <template #append>
                   <Button
                     icon="md-add"
                     @click.native="increment(index)"
+                    size="small"
                   ></Button>
                 </template>
               </Input>
             </vs-col>
           </vs-row>
         </vs-col>
-        <vs-col w="3">
+        <vs-col :lg="3" :xs="3">
           <vs-row>
-            <vs-col w="12">
-              <h4 class="title is-4">
-                Rp {{ (totalPrice[index] = cart.price * cart.quantity) }}
-              </h4>
-              <Button @click.native="ChangePrice(index)">Change Price</Button>
-            </vs-col>
             <vs-col w="12">
               <Button
                 size="large"
@@ -68,13 +85,35 @@
                 @click.native="deleteCart(cart.id)"
                 icon="ios-trash-outline"
                 ghost
+                :loading="loadingHapus"
               ></Button>
+              <!-- <Modal v-model="modalConfirmDeleteProduct" ok-text="Hapus Akun">
+                <template #header>
+                  <p style="color: #f60; text-align: center">
+                    <Icon type="ios-information-circle"></Icon>
+                    <span>Delete confirmation</span>
+                  </p>
+                </template>
+                <p class="subtitle is-6 is-size-7-mobile">
+                  Apabila produk dihapus, tidak dapat dikembalikan lagi
+                  {{ cart.id }}
+                </p>
+                <template #footer>
+                  <Button
+                    type="error"
+                    size="large"
+                    :loading="loadingHapus"
+                    @click="deleteCart(cart.id)"
+                    >Delete</Button
+                  >
+                </template>
+              </Modal> -->
             </vs-col>
           </vs-row>
         </vs-col>
       </vs-row>
       <Button type="primary" @click.native="ProceedToCheckout"
-        >Add Checkout</Button
+        >Proceed to Checkout</Button
       >
     </template>
   </section>
@@ -97,8 +136,8 @@ const Count_Cart_Data = gql(
 );
 const SubscriptionCart = gql(
   `
-  subscription MySubscription($_eq: Int!) {
-  cart(order_by: {id: desc},where: {id_userName: {_eq: $_eq}}) {
+ subscription MySubscription($_eq: Int!) {
+  cart(where: {id_userName: {_eq: $_eq}}, order_by: {id: asc}) {
     id
     id_userName
     image
@@ -110,15 +149,25 @@ const SubscriptionCart = gql(
 }
 
 
+
   `
 );
 const DELETE_CART = gql(
   `
-  mutation MyMutation($id: Int!) {
-  delete_cart_by_pk(id: $id) {
-    id_userName
+  mutation MyMutation($_eq: Int!) {
+  delete_cart(where: {id: {_eq: $_eq}}) {
+    returning {
+      id
+      id_userName
+      image
+      phone_name
+      phone_slug
+      price
+      quantity
+    }
   }
 }
+
 
   `
 );
@@ -149,6 +198,8 @@ export default {
       dataCart: [],
       totalPrice: [],
       countCart: "",
+      loadingHapus: false,
+      modalConfirmDeleteProduct: false,
     };
   },
   computed: {
@@ -156,6 +207,7 @@ export default {
       return this.$store.state.dataHp.UserLogin;
     },
   },
+
   apollo: {
     $subscribe: {
       dataCart: {
@@ -166,7 +218,9 @@ export default {
           };
         },
         result({ data }) {
-          this.dataCart = data.cart;
+          setTimeout(() => {
+            this.dataCart = data.cart;
+          }, 1000);
         },
       },
       countCart: {
@@ -184,25 +238,27 @@ export default {
   },
 
   methods: {
-    decrement(index, position = null, color, duration) {
+    decrement(index) {
       if (this.dataCart[index].quantity === 1) {
-        this.$vs.notification({
-          color,
-          duration,
-          progress: "auto",
-          position,
+        this.$Modal.error({
           title: "Tidak bisa 0",
-          text: "Quantity yang dimasukkan tidak bisa lebih kecil dari 1",
+          content: "Quantity yang dimasukkan tidak bisa lebih kecil dari 1",
         });
+
+        // });
       } else {
-        let qty = (this.dataCart[index].quantity -= 1);
-        console.log("Quantity dikurangi : ", qty);
+        this.dataCart[index].quantity -= 1;
       }
     },
     increment(index) {
-      let qty = (this.dataCart[index].quantity += 1);
-
-      console.log("Quantity ditambah : ", qty);
+      if (this.dataCart[index].quantity >= 90) {
+        this.$Modal.error({
+          title: "Melebihi Stock",
+          content: "Maaf quantity yang kamu masukkan melebihi stock",
+        });
+      } else {
+        this.dataCart[index].quantity += 1;
+      }
     },
     async ChangePrice(cartId) {
       console.log("dataCart : ", this.dataCart[cartId]);
@@ -230,16 +286,18 @@ export default {
         `/home/${this.dataCart[index].phone_slug}/${this.dataCart[index].phone_slug}`
       );
     },
-    deleteCart(index) {
-      let a = confirm("Yakin untuk hapus ?");
-      if (a) {
-        this.$apollo.mutate({
-          mutation: DELETE_CART,
-          variables: {
-            id: index,
-          },
-        });
-      }
+    async deleteCart(index) {
+      console.log("Yang aku klik skarang : ", index);
+      this.loadingHapus = true;
+
+      let hasil = await this.$apollo.mutate({
+        mutation: DELETE_CART,
+        variables: {
+          _eq: index,
+        },
+      });
+      console.log("Hasil : ", hasil);
+      this.loadingHapus = false;
     },
   },
   mounted() {
@@ -247,6 +305,14 @@ export default {
     if (!user) {
       this.$router.push("/login");
     }
+    let loading = this.$vs.loading({
+      text: "Sedang mengambil data cart, mohon tunggu sebentar...",
+      target: this.$refs.contentCart,
+    });
+    setTimeout(() => {
+      this.dataCart;
+      loading.close();
+    }, 1200);
   },
 };
 </script>
@@ -254,5 +320,8 @@ export default {
 <style scoped>
 .productName {
   cursor: pointer;
+}
+.vs-input {
+  text-align: center;
 }
 </style>

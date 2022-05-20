@@ -125,7 +125,7 @@ export default {
         });
       } else if (this.password !== this.passwordConfirm) {
         this.$Modal.error({
-          title: "Password ga sama kocak",
+          title: "Password tidak sama dengan konfirmasi",
           content: "Mohon diperiksa lagi kesamaannya",
         });
       } else if (hasilQuery.data.users.length === 0) {

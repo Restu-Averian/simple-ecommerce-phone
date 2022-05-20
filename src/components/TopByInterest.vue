@@ -8,7 +8,8 @@
     <Tabs value="name1" class="my-6">
       <TabPane label="Top by Interests" name="name1">
         <div class="has-text-left">
-          <vs-table striped>
+          <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+          <vs-table striped ref="dataTable">
             <template #thead>
               <vs-tr>
                 <vs-th> No </vs-th>
@@ -52,14 +53,27 @@ export default {
   data() {
     return {
       dataTopByInterests: [],
+      kalauError: "",
     };
   },
   methods: {
     fetchTopByInterests() {
+      let loading = this.$vs.loading({
+        text: "Sedang mengambil data barang, mohon tunggu sebentar...",
+        target: this.$refs.dataTable,
+      });
       axios
         .get("https://api-mobilespecs.azharimm.site/v2/top-by-interest")
         .then((result) => {
           this.dataTopByInterests = result.data.data.phones;
+          loading.close();
+        })
+        .catch((error) => {
+          if (error.response.data.status == false) {
+            this.kalauError =
+              "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          }
+          console.log("Error di table: ", error.response.data);
         });
     },
     detail(index) {

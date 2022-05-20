@@ -1,8 +1,8 @@
 <template>
   <div class="my-6 center">
     <Divider><h1 class="title is-3 is-size-4-mobile">Latests</h1></Divider>
-
-    <vs-row>
+    <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+    <vs-row ref="contentLatest">
       <vs-col
         v-for="(latests, index) in dataLatests.slice(0, 8)"
         :key="index"
@@ -42,14 +42,27 @@ export default {
   data() {
     return {
       dataLatests: [],
+      kalauError: "",
     };
   },
   methods: {
     fetchDataLatests() {
+      let loading = this.$vs.loading({
+        text: "Sedang mengambil data Latest Hp, mohon tunggu sebentar",
+        target: this.$refs.contentLatest,
+      });
       axios
         .get("https://api-mobilespecs.azharimm.site/v2/latest")
         .then((result) => {
           this.dataLatests = result.data.data.phones;
+          loading.close();
+        })
+        .catch((error) => {
+          if (error.response.data.status == false) {
+            this.kalauError =
+              "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          }
+          console.log("Error : ", error.response.data);
         });
     },
     detail(index) {

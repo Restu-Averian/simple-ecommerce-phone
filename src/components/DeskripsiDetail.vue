@@ -1,5 +1,5 @@
 <template>
-  <section class="my-6">
+  <section class="my-6" ref="deskripsi">
     <vs-table>
       <template #tbody>
         <!-- Released Date -->
@@ -274,10 +274,15 @@ export default {
   data() {
     return {
       dataDetail: [],
+      loadingFetching: false,
     };
   },
   methods: {
     fetchDataDetail() {
+      const loading = this.$vs.loading({
+        text: "Mohon tunggu sebentar, sedang mengambil data...",
+        target: this.$refs.deskripsi,
+      });
       axios
         .get(
           `https://api-mobilespecs.azharimm.site/v2/${this.$route.params.detail}`
@@ -285,6 +290,7 @@ export default {
         .then((response) => {
           console.log("hasil : ", response.data.data);
           this.dataDetail = response.data.data;
+          loading.close();
         });
     },
   },

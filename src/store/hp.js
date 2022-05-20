@@ -32,11 +32,17 @@ const mutations={
    updateNoHp(state,params){
        state.UserLogin["no_hp"]=params
    },
+   updateLogin(state,params){
+       state.UserLogin["login"]=params
+   },
   
 }
 const actions = {
     setLogin(store,params){
         store.commit("setUserLogin",params)
+    },
+    updateLogin(store,params){
+        store.commit("updateLogin",params)
     },
     updateUsername(store,params){
         store.commit("updateUsername",params)

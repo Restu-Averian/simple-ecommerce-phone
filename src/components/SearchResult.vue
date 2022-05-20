@@ -1,10 +1,12 @@
 <template>
   <div class="container" style="margin: 120px auto">
     <Divider
-      ><h1 class="title is-3">{{ dataSearch.title }}</h1></Divider
+      ><h1 class="title is-3 is-size-4-mobile">
+        {{ dataSearch.title }}
+      </h1></Divider
     >
 
-    <vs-row>
+    <vs-row ref="SearchData">
       <vs-col
         v-for="(hp, index) in dataSearch.phones"
         :key="index"
@@ -39,11 +41,12 @@ export default {
   data() {
     return {
       dataSearch: [],
+      loading: "",
     };
   },
   methods: {
-    fetchSearch() {
-      axios
+    async fetchSearch() {
+      await axios
         .get(
           `https://api-mobilespecs.azharimm.site/v2/search?query=${this.$route.params.search}`
         )
@@ -59,7 +62,12 @@ export default {
     },
   },
   mounted() {
+    this.loading = this.$vs.loading({
+      text: "Sedang mengambil data product, mohon tunggu sebentar...",
+      target: this.$refs.SearchData,
+    });
     this.fetchSearch();
+    this.loading.close();
   },
   updated() {
     this.fetchSearch();

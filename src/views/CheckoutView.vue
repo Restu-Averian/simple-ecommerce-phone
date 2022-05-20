@@ -119,8 +119,8 @@
           />
         </vs-row>
 
-        <vs-row class="mt-6">
-          <vs-col vs-type="flex" vs-justify="center" vs-align="center" w="6">
+        <vs-row class="mt-5 mb-6">
+          <vs-col>
             <Button
               type="primary"
               class="has-text-centered"
@@ -158,8 +158,8 @@
       </vs-col>
       <vs-col :lg="6" :xs="12" class="mt-5 p-2">
         <!-- Informasi Barang -->
-        <Card style="width: 100%">
-          <template #title> Product Information </template>
+        <Card style="width: 100%" ref="LoadingFetchProduct">
+          <template #title> Informasi Produk </template>
           <vs-row
             v-for="checkout in dataCheckout"
             :key="checkout.id"
@@ -232,6 +232,7 @@
 <script>
 import gql from "graphql-tag";
 import axios from "axios";
+
 const GET_USER_DATA = gql(
   `
     query MyQuery($_eq: Int!) {
@@ -352,6 +353,7 @@ const Update_Data_User = gql(
 
   `
 );
+
 export default {
   data() {
     return {
@@ -406,8 +408,15 @@ export default {
             _eq: this.dataUser.id,
           };
         },
-        result({ data }) {
-          this.dataCheckout = data.cart;
+        async result({ data }) {
+          const loading = this.$vs.loading({
+            target: this.$refs.LoadingFetchProduct,
+            text: "Sedang mengambil data barang, mohon ditunggu sebentar...",
+          });
+          await setTimeout(() => {
+            this.dataCheckout = data.cart;
+            loading.close();
+          }, 1000);
         },
       },
     },
