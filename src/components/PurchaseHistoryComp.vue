@@ -1,6 +1,6 @@
 <template>
   <section>
-    <vs-table>
+    <vs-table ref="riwayat">
       <template #thead>
         <vs-tr>
           <vs-th> Nama Product </vs-th>
@@ -84,9 +84,16 @@ export default {
             _eq: this.dataUser.id,
           };
         },
-        result({ data }) {
+        async result({ data }) {
+          let loading = this.$vs.loading({
+            text: "Sedang mengambil data riwayat belanja, mohon tunggu sebentar...",
+            target: this.$refs.riwayat,
+          });
           console.log("Data Checkout : ", this.dataCheckout);
-          this.dataCheckout = data.checkout;
+          await setTimeout(() => {
+            this.dataCheckout = data.checkout;
+            loading.close();
+          }, 1000);
         },
       },
     },

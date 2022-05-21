@@ -8,7 +8,9 @@
     <Tabs value="name1" class="my-6">
       <TabPane label="Top by Interests" name="name1">
         <div class="has-text-left">
-          <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+          <Alert type="error" show-icon v-if="kalauError !== ''">
+            <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+          </Alert>
           <vs-table striped ref="dataTable">
             <template #thead>
               <vs-tr>
@@ -72,6 +74,8 @@ export default {
           if (error.response.data.status == false) {
             this.kalauError =
               "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          } else {
+            this.kalauError = "";
           }
           console.log("Error di table: ", error.response.data);
         });

@@ -1,7 +1,9 @@
 <template>
   <div class="my-4">
     <div class="center examplex">
-      <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+      <Alert type="error" show-icon v-if="kalauError !== ''">
+        <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+      </Alert>
 
       <vs-table striped ref="dataTable">
         <template #thead>
@@ -56,6 +58,8 @@ export default {
           if (error.response.data.status == false) {
             this.kalauError =
               "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          } else {
+            this.kalauError = "";
           }
           console.log("Error di table: ", error.response.data);
         });

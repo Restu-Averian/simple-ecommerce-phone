@@ -28,6 +28,7 @@
           size="large"
           type="primary"
           :loading="loading"
+          :disabled="username === '' || password === '' ? true : false"
           >Login</Button
         >
       </vs-col>

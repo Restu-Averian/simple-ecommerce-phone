@@ -1,11 +1,25 @@
 <template>
   <div class="container" style="margin: 120px auto">
+    <vs-row>
+      <Button
+        ghost
+        @click.native="$router.go(-1)"
+        type="primary"
+        icon="md-arrow-back"
+        >Back</Button
+      >
+    </vs-row>
     <Divider
-      ><h1 class="title is-3 is-size-4-mobile">
+      ><h1 class="title is-3 is-size-5-mobile">
         {{ dataSearch.title }}
       </h1></Divider
     >
-
+    <Alert type="error" show-icon v-if="KalauKosong !== ''">
+      <p class="subtitle is-6 is-size-7-mobile">{{ KalauKosong }}</p>
+    </Alert>
+    <Alert type="error" show-icon v-if="kalauTimeOut !== ''">
+      <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauTimeOut }}</h3>
+    </Alert>
     <vs-row ref="SearchData">
       <vs-col
         v-for="(hp, index) in dataSearch.phones"
@@ -42,6 +56,8 @@ export default {
     return {
       dataSearch: [],
       loading: "",
+      KalauKosong: "",
+      kalauTimeOut: "",
     };
   },
   methods: {
@@ -52,7 +68,23 @@ export default {
         )
         .then((result) => {
           // console.log("Resultnya : ", result.data.data);
+
           this.dataSearch = result.data.data;
+          if (this.dataSearch.phones.length === 0) {
+            this.KalauKosong = "Hasil pencarian tidak ada";
+            console.log("ada ga ? ", this.KalauKosong);
+          } else {
+            this.KalauKosong = "";
+          }
+        })
+        .catch((error) => {
+          if (error.response.data.status === false) {
+            this.KalauKosong = "";
+
+            this.kalauTimeOut =
+              "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          }
+          console.log("awikwok:", error);
         });
     },
     detail(index) {

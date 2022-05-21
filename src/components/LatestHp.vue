@@ -1,7 +1,9 @@
 <template>
   <div class="my-6 center">
     <Divider><h1 class="title is-3 is-size-4-mobile">Latests</h1></Divider>
-    <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+    <Alert type="error" show-icon v-if="kalauError !== ''">
+      <h3 class="subtitle is-5 is-size-6-mobile">{{ kalauError }}</h3>
+    </Alert>
     <vs-row ref="contentLatest">
       <vs-col
         v-for="(latests, index) in dataLatests.slice(0, 8)"
@@ -61,6 +63,8 @@ export default {
           if (error.response.data.status == false) {
             this.kalauError =
               "Maaf, request terhadap data terlalu banyak, mohon untuk tidak menggunakan web ini sekitar 1 menit";
+          } else {
+            this.kalauError = "";
           }
           console.log("Error : ", error.response.data);
         });

@@ -1,9 +1,18 @@
 <template>
   <div class="container" style="margin: 120px 0px">
-    <Divider
-      ><h1 class="title is-3">{{ dataHp.title }}</h1></Divider
-    >
     <vs-row>
+      <Button
+        ghost
+        @click.native="$router.go(-1)"
+        type="primary"
+        icon="md-arrow-back"
+        >Back</Button
+      >
+    </vs-row>
+    <Divider
+      ><h1 class="title is-3 is-size-4-mobile">{{ dataHp.title }}</h1></Divider
+    >
+    <vs-row ref="listHp">
       <vs-col
         v-for="(hp, index) in dataHp.phones"
         :key="index"
@@ -42,12 +51,17 @@ export default {
   },
   methods: {
     fetchDataHp() {
+      let loading = this.$vs.loading({
+        text: "Sedang mengambil data barang, mohon tunggu sebentar...",
+        target: this.$refs.listHp,
+      });
       axios
         .get(
           `https://api-mobilespecs.azharimm.site/v2/brands/${this.$route.params.list}`
         )
         .then((response) => {
           this.dataHp = response.data.data;
+          loading.close();
         });
     },
 
