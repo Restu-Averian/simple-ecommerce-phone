@@ -185,7 +185,7 @@
         v-else-if="city !== ''"
         :disabled="isEdit"
         size="large"
-        placeholder="large size"
+        placeholder="Pilih Kota"
       />
     </vs-row>
 
@@ -211,7 +211,7 @@
         v-else-if="kecamatan !== ''"
         :disabled="isEdit"
         size="large"
-        placeholder="large size"
+        placeholder="Pilih  Kecamatan"
       />
     </vs-row>
 
@@ -236,7 +236,7 @@
         v-else-if="kelurahan !== ''"
         :disabled="isEdit"
         size="large"
-        placeholder="large size"
+        placeholder="Pilih Kelurahan"
       />
     </vs-row>
 
@@ -580,34 +580,27 @@ export default {
     async del() {
       this.modal_loading = true;
       if (this.confirmDelete === this.dataUser.UserLogin.username) {
-        await setTimeout(() => {
-          this.modal_loading = false;
-          this.modalConfirmDeleteAcc = false;
-          this.$Modal.success({
-            title: "Akun berhasil dihapus",
-          });
-          this.$router.push("/login");
-        }, 2000);
+        // this.modalConfirmDeleteAcc = false;
 
-        this.$apollo.mutate({
+        await this.$apollo.mutate({
           mutation: DeleteUser,
           variables: {
             _eq: this.dataUser.UserLogin.id,
           },
         });
-        this.$apollo.mutate({
+        await this.$apollo.mutate({
           mutation: DeleteUserCart,
           variables: {
             _eq: this.dataUser.UserLogin.id,
           },
         });
-        this.$apollo.mutate({
+        await this.$apollo.mutate({
           mutation: DeleteUserKomentar,
           variables: {
             _eq: this.dataUser.UserLogin.id,
           },
         });
-        this.$apollo.mutate({
+        await this.$apollo.mutate({
           mutation: DeleteUserCheckout,
           variables: {
             _eq: this.dataUser.UserLogin.id,
@@ -615,6 +608,12 @@ export default {
         });
         this.$store.dispatch("updateLogin", false);
         localStorage.removeItem("dataHp");
+
+        this.modal_loading = false;
+        this.$Modal.success({
+          title: "Akun berhasil dihapus",
+        });
+        this.$router.push("/login");
       } else {
         this.modal_loading = false;
 

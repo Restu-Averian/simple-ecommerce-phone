@@ -74,7 +74,7 @@
         </Dropdown>
       </template>
       <template #right v-else>
-        <Button type="primary" @click="goTo('/login', 1)" size="large"
+        <Button type="primary" @click="goTo('/login')" size="large"
           >Login</Button
         >
       </template>
@@ -181,6 +181,7 @@ export default {
       name: "",
       selected: null,
       modalLogout: false,
+      KalauKosong: "",
     };
   },
 
@@ -226,6 +227,9 @@ export default {
           .then((result) => {
             this.dataSearch = result.data.data.phones;
             console.log("hasil search : ", this.dataSearch);
+            if (this.dataSearch.length === 0) {
+              this.KalauKosong = "Hasil pencarian tidak ada";
+            }
           });
         this.$router.push(`/search/${this.search}`);
         this.search = "";

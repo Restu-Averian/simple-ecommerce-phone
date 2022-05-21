@@ -1,5 +1,14 @@
 <template>
   <div style="margin: 120px auto" class="container">
+    <vs-row>
+      <Button
+        ghost
+        @click.native="$router.go(-1)"
+        type="primary"
+        icon="md-arrow-back"
+        >Back</Button
+      >
+    </vs-row>
     <Divider><h1 class="title is-3 is-size-4-mobile">Brands</h1></Divider>
 
     <vs-row ref="contentBrands">

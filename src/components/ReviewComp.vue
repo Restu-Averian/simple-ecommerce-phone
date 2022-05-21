@@ -32,10 +32,7 @@
       </p>
     </div> -->
     <vs-row class="my-5 has-text-centered">
-      <Button
-        size="large"
-        @click="AddComment('top-center', 'danger', 2000)"
-        type="primary"
+      <Button size="large" @click="AddComment" type="primary" :loading="loading"
         >Add Comment</Button
       >
     </vs-row>
@@ -137,6 +134,7 @@ export default {
       AllComment: [],
       countComment: "",
       isVisible: true,
+      loading: false,
     };
   },
   apollo: {
@@ -186,18 +184,17 @@ export default {
       let user = JSON.parse(localStorage.getItem("dataHp"));
       this.namaOrang = user.dataHp.UserLogin.username;
     },
-    async AddComment(position = null, color, duration) {
+    async AddComment() {
+      this.loading = true;
       let users = JSON.parse(localStorage.getItem("dataHp"));
       if (users) {
         if (this.komentarOrang == "") {
-          this.$vs.notification({
-            color,
-            duration,
-            progress: "auto",
-            position,
+          this.$Modal.error({
             title: "Komentar Kosong",
-            text: "Mohon diisi dulu inputannya agar dapat memberikan komentar",
+            content:
+              "Mohon diisi dulu inputannya agar dapat memberikan komentar",
           });
+          this.loading = false;
         } else {
           let a = await this.$apollo.mutate({
             mutation: ADD_COMMENT,
@@ -213,6 +210,7 @@ export default {
           });
           console.log("hasil mutate", a);
           this.komentarOrang = "";
+          this.loading = false;
         }
       } else {
         alert("Login terlebih dahulu");

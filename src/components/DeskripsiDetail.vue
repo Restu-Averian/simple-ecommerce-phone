@@ -5,7 +5,7 @@
         <!-- Released Date -->
         <vs-tr>
           <vs-td>
-            <h2 class="title is-4 has-text-info has-text-left is-size-6-mobile">
+            <h2 class="title is-5 has-text-info has-text-left is-size-6-mobile">
               Released Date
             </h2>
           </vs-td>

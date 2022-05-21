@@ -49,6 +49,7 @@
                   size="small"
                   type="primary"
                   ghost
+                  :loading="loadingChange"
                   >Change
                 </Button>
               </h4>
@@ -200,6 +201,7 @@ export default {
       countCart: "",
       loadingHapus: false,
       modalConfirmDeleteProduct: false,
+      loadingChange: false,
     };
   },
   computed: {
@@ -217,9 +219,15 @@ export default {
             _eq: this.dataUser.id,
           };
         },
-        result({ data }) {
-          setTimeout(() => {
+        async result({ data }) {
+          let loading = this.$vs.loading({
+            text: "Sedang mengambil data barang, mohon tunggu sebentar...",
+            target: this.$refs.contentCart,
+          });
+
+          await setTimeout(() => {
             this.dataCart = data.cart;
+            loading.close();
           }, 1000);
         },
       },
@@ -261,6 +269,7 @@ export default {
       }
     },
     async ChangePrice(cartId) {
+      this.loadingChange = true;
       console.log("dataCart : ", this.dataCart[cartId]);
       console.log("dataCart : ", this.dataCart[cartId]);
       console.log("price : ", this.totalPrice);
@@ -274,6 +283,7 @@ export default {
           quantity: this.dataCart[cartId].quantity,
         },
       });
+      this.loadingChange = false;
       console.log("Hasil ganti harga : ", hasilQuery);
     },
     ProceedToCheckout() {
@@ -305,14 +315,6 @@ export default {
     if (!user) {
       this.$router.push("/login");
     }
-    let loading = this.$vs.loading({
-      text: "Sedang mengambil data cart, mohon tunggu sebentar...",
-      target: this.$refs.contentCart,
-    });
-    setTimeout(() => {
-      this.dataCart;
-      loading.close();
-    }, 1200);
   },
 };
 </script>

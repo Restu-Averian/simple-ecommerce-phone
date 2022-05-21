@@ -1,5 +1,14 @@
 <template>
   <div class="container mx-auto" style="margin: 120px auto">
+    <vs-row class="mb-6">
+      <Button
+        ghost
+        @click.native="$router.go(-1)"
+        type="primary"
+        icon="md-arrow-back"
+        >Back</Button
+      >
+    </vs-row>
     <vs-row>
       <vs-col
         :lg="4"

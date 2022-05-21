@@ -38,7 +38,20 @@
     </div>
     <vs-row class="mt-5 mb-3 mx-auto">
       <vs-col :xs="12" :lg="2" class="mx-auto">
-        <Button @click="RegisterProcess" long size="large" type="primary"
+        <Button
+          @click="RegisterProcess"
+          long
+          size="large"
+          type="primary"
+          :loading="loading"
+          :disabled="
+            username === '' ||
+            password === '' ||
+            passwordConfirm === '' ||
+            preview === ''
+              ? true
+              : false
+          "
           >Register</Button
         >
       </vs-col>
@@ -107,27 +120,25 @@ export default {
       preview: "",
       showPassword: false,
       passwordConfirm: "",
+      loading: false,
     };
   },
 
   methods: {
     async RegisterProcess() {
+      this.loading = true;
       let hasilQuery = await this.$apollo.query({
         query: GetUsers,
         variables: {
           _eq: this.username,
         },
       });
-      if (this.username === "" || this.password === "" || this.preview === "") {
-        this.$Modal.error({
-          title: "Form kosong",
-          content: "Mohon diperiksa lagi form yang tersedia",
-        });
-      } else if (this.password !== this.passwordConfirm) {
+      if (this.password !== this.passwordConfirm) {
         this.$Modal.error({
           title: "Password tidak sama dengan konfirmasi",
           content: "Mohon diperiksa lagi kesamaannya",
         });
+        this.loading = false;
       } else if (hasilQuery.data.users.length === 0) {
         this.$apollo.mutate({
           mutation: RegisterProcc,
@@ -139,10 +150,19 @@ export default {
             },
           },
         });
-        alert("Berhasil Register");
+        this.loading = false;
+
+        this.$Modal.success({
+          title: "Berhasil Register !",
+          content: `Silahkan login dengan username : <b> ${this.username} </b>, dan password : <b> ${this.password} </b> `,
+        });
         this.$router.push("/login");
       } else {
-        alert("Udah ada username");
+        this.$Modal.error({
+          title: "Gagal Register",
+          content: `Maaf, username <b>${this.username}</b> telah dipakai sebelumnya`,
+        });
+        this.loading = false;
       }
     },
     generate() {

@@ -1,6 +1,16 @@
 <template>
   <div class="container" style="margin: 120px auto">
+    <vs-row>
+      <Button
+        ghost
+        @click.native="$router.go(-1)"
+        type="primary"
+        icon="md-arrow-back"
+        >Back</Button
+      >
+    </vs-row>
     <h1>Checkout</h1>
+
     <vs-row class="my-3">
       <!-- Data Pengiriman -->
       <vs-col :lg="6" :xs="12" class="mt-5 p-2">
@@ -26,7 +36,12 @@
           </vs-col>
         </vs-row>
         <vs-row class="mt-5 mb-3">
-          <Input v-model="noHp" size="large" placeholder="No. Handphone" />
+          <Input
+            v-model="noHp"
+            size="large"
+            type="number"
+            placeholder="No. Handphone"
+          />
         </vs-row>
         <vs-row class="mt-5 mb-3">
           <Select
@@ -64,7 +79,7 @@
             v-else-if="city !== ''"
             :disabled="isEdit"
             size="large"
-            placeholder="large size"
+            placeholder="Pilih Kota"
           />
         </vs-row>
 
@@ -90,7 +105,7 @@
             v-else-if="kecamatan !== ''"
             :disabled="isEdit"
             size="large"
-            placeholder="large size"
+            placeholder="Pilih Kecamatan"
           />
         </vs-row>
 
@@ -115,7 +130,7 @@
             v-else-if="kelurahan !== ''"
             :disabled="isEdit"
             size="large"
-            placeholder="large size"
+            placeholder="Pilih Kelurahan"
           />
         </vs-row>
 
@@ -218,10 +233,30 @@
           <Modal
             v-model="modalSaveData"
             title="Konfirmasi Simpan Data Baru"
-            @on-ok="Proceed"
             ok-text="Simpan"
-            @on-cancel="tidakSimpan"
           >
+            <template #header>
+              <p style="text-align: center">
+                <Icon type="ios-information-circle"></Icon>
+                <span>Konfirmasi Simpan Data</span>
+              </p>
+            </template>
+            <p class="subtitle is-6 is-size-7-mobile">
+              Apakah data pada form akan dipakai untuk berikutnya ?
+            </p>
+
+            <template #footer>
+              <Button
+                @click="tidakSimpan"
+                ghost
+                type="primary"
+                :loading="loadingNotSaved"
+                >Tidak Simpan</Button
+              >
+              <Button @click="Proceed" :loading="loadingSaved" type="primary"
+                >Simpan data</Button
+              >
+            </template>
           </Modal>
         </Card>
       </vs-col>
@@ -357,6 +392,8 @@ const Update_Data_User = gql(
 export default {
   data() {
     return {
+      loadingSaved: false,
+      loadingNotSaved: false,
       listProvinsi: [],
       namaProvinsi: [],
       province: "",
@@ -554,10 +591,14 @@ export default {
       }
     },
     async tidakSimpan() {
+      this.loadingNotSaved = true;
+
       let DataPhoneName = this.dataCheckout.map((checkout) => {
         return checkout.phone_name;
       });
       console.log("Phone Name yang disimpan : ", DataPhoneName);
+      this.loadingNotSaved = false;
+      this.modalSaveData = false;
 
       this.$Modal.success({
         title: "Pembelian Berhasil",
@@ -593,6 +634,7 @@ export default {
       this.$router.push("/home");
     },
     async Proceed() {
+      this.loadingSaved = true;
       let DataPhoneName = this.dataCheckout.map((checkout) => {
         return checkout.phone_name;
       });
@@ -609,6 +651,9 @@ export default {
         },
       });
       console.log("Iya, hasil mutatenya : ", hasilUpdate);
+      this.loadingSaved = false;
+      this.modalSaveData = false;
+
       this.$Modal.success({
         title: "Pembelian Berhasil",
         content:
