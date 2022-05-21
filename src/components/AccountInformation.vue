@@ -583,12 +583,6 @@ export default {
         // this.modalConfirmDeleteAcc = false;
 
         await this.$apollo.mutate({
-          mutation: DeleteUser,
-          variables: {
-            _eq: this.dataUser.UserLogin.id,
-          },
-        });
-        await this.$apollo.mutate({
           mutation: DeleteUserCart,
           variables: {
             _eq: this.dataUser.UserLogin.id,
@@ -602,6 +596,12 @@ export default {
         });
         await this.$apollo.mutate({
           mutation: DeleteUserCheckout,
+          variables: {
+            _eq: this.dataUser.UserLogin.id,
+          },
+        });
+        await this.$apollo.mutate({
+          mutation: DeleteUser,
           variables: {
             _eq: this.dataUser.UserLogin.id,
           },
